@@ -8,10 +8,16 @@ use Illuminate\Support\Facades\Auth;
 
 class TeacherAuthController extends Controller
 {
+
+    public function loginPage()
+    {
+      return view('Teacher.Auth.login');
+    }
+
     public function login(Request $request)
     {
         $check = $request->all();
-        
+
         if (Auth::guard('teacher')->attempt([
             'email' => $check['email'],
             'password' => $check['password']
@@ -20,5 +26,11 @@ class TeacherAuthController extends Controller
         } else {
             return redirect()->back()->with('error', 'Invalid email or password');
         }
+    }
+
+    public function logout()
+    {
+        Auth::guard('teacher')->logout();
+        return redirect()->route('teacher.login.page');
     }
 }

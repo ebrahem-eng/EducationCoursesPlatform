@@ -10,7 +10,7 @@ class TeacherAuthMiddleware
     public function handle($request, Closure $next)
     {
         if (!Auth::guard('teacher')->check()) {
-            return redirect()->route('teacher.login');
+            return redirect()->route('teacher.login.page');
         }
         return $next($request);
     }
