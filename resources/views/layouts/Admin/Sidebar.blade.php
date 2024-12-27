@@ -103,56 +103,63 @@
         </li>
 
 
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-category"></i>
 
-{{--        <li class="menu-header small text-uppercase">--}}
-{{--            <span class="menu-header-text">Pages</span>--}}
-{{--        </li>--}}
-{{--        <li class="menu-item">--}}
-{{--            <a href="javascript:void(0);" class="menu-link menu-toggle">--}}
-{{--                <i class="menu-icon tf-icons bx bx-dock-top"></i>--}}
-{{--                <div data-i18n="Account Settings">Account Settings</div>--}}
-{{--            </a>--}}
-{{--            <ul class="menu-sub">--}}
-{{--                <li class="menu-item">--}}
-{{--                    <a href="pages-account-settings-account.html" class="menu-link">--}}
-{{--                        <div data-i18n="Account">Account</div>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
-{{--                <li class="menu-item">--}}
-{{--                    <a href="pages-account-settings-notifications.html" class="menu-link">--}}
-{{--                        <div data-i18n="Notifications">Notifications</div>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
-{{--                <li class="menu-item">--}}
-{{--                    <a href="pages-account-settings-connections.html" class="menu-link">--}}
-{{--                        <div data-i18n="Connections">Connections</div>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
-{{--            </ul>--}}
-{{--        </li>--}}
-{{--        <li class="menu-item">--}}
-{{--            <a href="javascript:void(0);" class="menu-link menu-toggle">--}}
-{{--                <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>--}}
-{{--                <div data-i18n="Authentications">Authentications</div>--}}
-{{--            </a>--}}
-{{--            <ul class="menu-sub">--}}
-{{--                <li class="menu-item">--}}
-{{--                    <a href="auth-login-basic.html" class="menu-link" target="_blank">--}}
-{{--                        <div data-i18n="Basic">Login</div>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
-{{--                <li class="menu-item">--}}
-{{--                    <a href="auth-register-basic.html" class="menu-link" target="_blank">--}}
-{{--                        <div data-i18n="Basic">Register</div>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
-{{--                <li class="menu-item">--}}
-{{--                    <a href="auth-forgot-password-basic.html" class="menu-link" target="_blank">--}}
-{{--                        <div data-i18n="Basic">Forgot Password</div>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
-{{--            </ul>--}}
-{{--        </li>--}}
+                <div data-i18n="Account Settings">Category Manage</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.category.index')}}" class="menu-link">
+                        <div data-i18n="Account">Category Table</div>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="{{route('admin.category.sub.category.index')}}" class="menu-link">
+                        <div data-i18n="Account">Sub Category Table</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{route('admin.category.create')}}" class="menu-link">
+                        <div data-i18n="Notifications">Create Category</div>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="{{route('admin.category.sub.category.create')}}" class="menu-link">
+                        <div data-i18n="Notifications">Create SubCategory</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{route('admin.category.archive')}}" class="menu-link">
+                        <div data-i18n="Connections">Category Archive Table</div>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a href="{{route('admin.category.sub.category.archive')}}" class="menu-link">
+                        <div data-i18n="Connections">SubCategory Archive Table</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div data-i18n="Authentications">Student Account</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.student.index')}}" class="menu-link" target="_blank">
+                        <div data-i18n="Basic">Student Table</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
 {{--        <li class="menu-item">--}}
 {{--            <a href="javascript:void(0);" class="menu-link menu-toggle">--}}
 {{--                <i class="menu-icon tf-icons bx bx-cube-alt"></i>--}}

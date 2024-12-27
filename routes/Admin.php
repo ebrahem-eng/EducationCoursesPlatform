@@ -55,4 +55,64 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
     });
 
 
+    //=================================== Category Route =============================
+
+    Route::group(['prefix' => 'category', 'as' => 'category.', 'controller' => \App\Http\Controllers\admin\Category\CategoryController::class], function () {
+
+        Route::get('/index', 'index')->name('index');
+
+        Route::get('/sub-category/index', 'subCategoryIndex')->name('sub.category.index');
+
+        Route::get('/create', 'create')->name('create');
+
+        Route::get('sub-category/create', 'subCategoryCreate')->name('sub.category.create');
+
+        Route::post('/store', 'store')->name('store');
+
+        Route::post('/sub-category/store', 'subCategoryStore')->name('sub.category.store');
+
+        Route::get('/edit/{id}', 'edit')->name('edit');
+
+        Route::get('/sub-category/edit/{id}', 'subCategoryEdit')->name('sub.category.edit');
+
+        Route::put('/update/{id}', 'update')->name('update');
+
+        Route::put('/sub-category/update/{id}', 'subCategoryUpdate')->name('sub.category.update');
+
+        Route::get('/archive', 'archive')->name('archive');
+
+        Route::get('sub/category/archive', 'subCategoryArchive')->name('sub.category.archive');
+
+        Route::delete('/softDelete/{id}', 'softDelete')->name('soft.delete');
+
+        Route::delete('/forceDelete/{id}', 'forceDelete')->name('force.delete');
+
+        Route::get('/restore/{id}', 'restore')->name('restore');
+    });
+
+
+    //=================================== Student Route =============================
+
+    Route::group(['prefix' => 'student', 'as' => 'student.', 'controller' => TeacherController::class], function () {
+
+        Route::get('/index', 'index')->name('index');
+
+        Route::get('/create', 'create')->name('create');
+
+        Route::post('/store', 'store')->name('store');
+
+        Route::get('/edit/{id}', 'edit')->name('edit');
+
+        Route::put('/update/{id}', 'update')->name('update');
+
+        Route::get('/archive', 'archive')->name('archive');
+
+        Route::delete('/softDelete/{id}', 'softDelete')->name('soft.delete');
+
+        Route::delete('/forceDelete/{id}', 'forceDelete')->name('force.delete');
+
+        Route::post('/restore/{id}', 'restore')->name('restore');
+    });
+
+
 });
