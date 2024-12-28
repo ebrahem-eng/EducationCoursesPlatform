@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\admin\Student\StudentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\Teacher\TeacherController;
@@ -93,7 +93,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
 
     //=================================== Student Route =============================
 
-    Route::group(['prefix' => 'student', 'as' => 'student.', 'controller' => TeacherController::class], function () {
+    Route::group(['prefix' => 'student', 'as' => 'student.', 'controller' => StudentController::class], function () {
 
         Route::get('/index', 'index')->name('index');
 

@@ -157,6 +157,7 @@
                         <div data-i18n="Basic">Student Table</div>
                     </a>
                 </li>
+                
             </ul>
         </li>
 
