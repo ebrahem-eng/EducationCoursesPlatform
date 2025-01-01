@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admin\Course\CourseController;
 use App\Http\Controllers\admin\Student\StudentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -114,5 +115,23 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
         Route::post('/restore/{id}', 'restore')->name('restore');
     });
 
+
+    //=================================== Course Route =============================
+
+    Route::group(['prefix' => 'course', 'as' => 'course.', 'controller' => CourseController::class], function () { 
+
+        Route::get('/publishedCourse', 'publishedCourse')->name('publishedCourse');
+
+        Route::get('/requestPublishCourse', 'requestPublishCourse')->name('requestPublishCourse');
+
+        Route::put('/update_status/{id}','updateStatus')->name('update_status');
+
+        Route::put('/change-published-status/{id}', 'changePublishedCourse')->name('change_published_status');
+
+        Route::put('/reject/{id}','rejectCourse')->name('rejectCourse');
+
+
+
+    });
 
 });
