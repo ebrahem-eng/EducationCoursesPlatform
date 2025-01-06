@@ -77,6 +77,7 @@
                                     <th>Name</th>
                                     <th>Code</th>
                                     <th>Status Publish</th>
+                                    <th>Reject Cause</th>
                                     <th>change_status_by</th>
 
                                 </tr>
@@ -92,25 +93,26 @@
                                             @csrf
                                             @method('PUT')
                                             <div class="form-check form-switch mb-2">
-                                                <input 
-                                                    class="form-check-input" 
-                                                    type="checkbox" 
-                                                    id="flexSwitchCheckDefault" 
-                                                    name="status_publish" 
-                                                    value="1" 
-                                                    {{ $course->status_publish == 1 ? 'checked' : '' }} 
-                                                    onchange="this.form.submit()" 
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    id="flexSwitchCheckDefault"
+                                                    name="status_publish"
+                                                    value="1"
+                                                    {{ $course->status_publish == 1 ? 'checked' : '' }}
+                                                    onchange="this.form.submit()"
                                                 />
                                             </div>
                                         </form>
                                     </td>
+                                    <td>{{$course->rejected_cause}}</td>
                                     <td>{{$course->admin->name}}</td>
                                     <td>
                                         <!-- زر يفتح الـ Modal -->
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $course->id }}">
                                             Reject
                                         </button>
-                                
+
                                         <!-- Modal -->
                                         <div class="modal fade" id="rejectModal{{ $course->id }}" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">

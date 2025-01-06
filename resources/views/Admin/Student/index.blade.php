@@ -81,7 +81,6 @@
                                     <th>Image</th>
                                     <th>Gender</th>
                                     <th>Age</th>
-                                    <th>Created By</th>
                                     <th>Created Date</th>
                                     <th>Last Updated Date</th>
                                     <th>Action</th>
@@ -125,7 +124,7 @@
                                                 <a class="dropdown-item" href="{{route('admin.student.edit' , $student->id)}}"
                                                 ><i class="bx bx-edit-alt me-1"></i> Edit</a
                                                 >
-                                               
+
                                             </div>
                                         </div>
                                     </td>

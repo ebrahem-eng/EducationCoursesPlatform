@@ -153,34 +153,31 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.student.index')}}" class="menu-link" target="_blank">
+                    <a href="{{route('admin.student.index')}}" class="menu-link">
                         <div data-i18n="Basic">Student Table</div>
                     </a>
                 </li>
-                
             </ul>
         </li>
 
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-user"></i>
+                <i class="menu-icon tf-icons bx bx-book"></i>
                 <div data-i18n="Authentications">Course Manage</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.course.publishedCourse')}}" class="menu-link" target="_blank">
+                    <a href="{{route('admin.course.publishedCourse')}}" class="menu-link">
                         <div data-i18n="Basic">Published Courses Table</div>
                     </a>
                 </li>
-                
             </ul>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.course.requestPublishCourse')}}" class="menu-link" target="_blank">
+                    <a href="{{route('admin.course.requestPublishCourse')}}" class="menu-link">
                         <div data-i18n="Basic">Request Published Course Table</div>
                     </a>
                 </li>
-                
             </ul>
         </li>
 
