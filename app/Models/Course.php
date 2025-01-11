@@ -17,11 +17,33 @@ class Course extends Model
         'status_publish',
         'change_status_by',
         'rejected_cause',
+        'rejected_by',
+        'publish_by',
+        'teacher_id'
      ];
 
-     public function admin()
+    public function pyblishedBy()
+    {
+        return $this->belongsTo(Admin::class, 'publish_by');
+    }
+     public function changeStatusBy()
      {
          return $this->belongsTo(Admin::class, 'change_status_by');
      }
+
+     public function rejectedBy()
+     {
+         return $this->belongsTo(Admin::class, 'rejected_by');
+     }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Admin::class, 'teacher_id');
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(CourseCategory::class, 'course_id');
+    }
 
 }

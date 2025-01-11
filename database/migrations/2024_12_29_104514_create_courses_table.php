@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('code');
             $table->tinyInteger('status');
             $table->tinyInteger('status_publish');
-            $table->foreignId('change_status_by')->references('id')->on('admins');
+            $table->foreignId('change_status_by')->nullable()->constrained('admins');
+            $table->foreignId('teacher_id')->constrained('teachers');
+            $table->foreignId('rejected_by')->nullable()->constrained('admins');
+            $table->foreignId('publish_by')->nullable()->constrained('admins');
             $table->string('rejected_cause');
             $table->softDeletes();
             $table->timestamps();

@@ -20,6 +20,8 @@ class CourseSeeder extends Seeder
             'status' => '1',
             'status_publish' => '1',
             'change_status_by'=> '1',
+            'teacher_id' => '1',
+            'rejected_by' => '1',
             'rejected_cause' => 'something to try'
         ]);
 
@@ -29,6 +31,8 @@ class CourseSeeder extends Seeder
             'status' => '0',
             'status_publish' => '0',
             'change_status_by'=> '1',
+            'teacher_id' => '1',
+            'rejected_by' => '1',
             'rejected_cause' => 'something to try'
         ]);
 
@@ -38,6 +42,8 @@ class CourseSeeder extends Seeder
             'status' => '1',
             'status_publish' => '0',
             'change_status_by'=> '1',
+            'teacher_id' => '1',
+            'rejected_by' => '1',
             'rejected_cause' => 'something to try'
         ]);
 
@@ -47,6 +53,8 @@ class CourseSeeder extends Seeder
             'status' => '0',
             'status_publish' => '0',
             'change_status_by'=> '1',
+            'teacher_id' => '1',
+            'rejected_by' => '1',
             'rejected_cause' => 'something to try'
         ]);
     }

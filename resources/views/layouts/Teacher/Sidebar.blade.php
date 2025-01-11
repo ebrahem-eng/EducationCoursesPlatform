@@ -79,14 +79,14 @@
         <!-- Layouts -->
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-chalkboard"></i>
-                <div data-i18n="Layouts"> Management</div>
+                <i class="menu-icon tf-icons bx bx-book"></i>
+                <div data-i18n="Layouts">Courses</div>
             </a>
 
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.teacher.index')}}" class="menu-link">
-                        <div data-i18n="Without menu">Teacher Table</div>
+                    <a href="{{route('teacher.course.index')}}" class="menu-link">
+                        <div data-i18n="Without menu">Course Table</div>
                     </a>
                 </li>
                 <li class="menu-item">

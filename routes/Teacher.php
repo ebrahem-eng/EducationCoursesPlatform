@@ -19,4 +19,11 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
     Route::get('/dashboard', [TeacherController::class, 'index'])->name('dashboard');
 
+    //=================================== Courses Route =============================
+
+    Route::group(['prefix' => 'course', 'as' => 'course.', 'controller' => \App\Http\Controllers\teacher\Course\CourseController::class], function () {
+
+        Route::get('/index', 'index')->name('index');
+
+    });
 });
