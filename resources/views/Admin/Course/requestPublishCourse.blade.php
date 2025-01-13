@@ -76,7 +76,10 @@
                                     <th>#</th>
                                     <th>Name</th>
                                     <th>Code</th>
+                                    <th>Categories</th>
+                                    <th>Teacher</th>
                                     <th>Status Publish</th>
+                                    <th>Reject By</th>
                                     <th>Reject Cause</th>
                                     <th>change_status_by</th>
 
@@ -88,6 +91,12 @@
                                     <th scope="row">1</th>
                                     <td>{{$course->name}}</td>
                                     <td>{{$course->code}}</td>
+                                    <td>
+                                        @foreach($course->categories as $courseCategory)
+                                         {{$courseCategory->category->name}} -
+                                        @endforeach
+                                    </td>
+                                    <th>{{$course->teacher->name}}</th>
                                     <td>
                                         <form method="post" action="{{ route('admin.course.change_published_status', $course->id) }}">
                                             @csrf
@@ -105,8 +114,14 @@
                                             </div>
                                         </form>
                                     </td>
-                                    <td>{{$course->rejected_cause}}</td>
-                                    <td>{{$course->admin->name}}</td>
+                                    <td>{{$course->rejectedBy->name ?? '-'}}</td>
+                                    <td>
+                                    @if (empty($course->rejected_cause))
+                                    -
+                                    @else {{$course->rejected_cause}}   
+                                    @endif    
+                                    </td>
+                                    <td>{{$course->changeStatusBy->name}}</td>
                                     <td>
                                         <!-- زر يفتح الـ Modal -->
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $course->id }}">

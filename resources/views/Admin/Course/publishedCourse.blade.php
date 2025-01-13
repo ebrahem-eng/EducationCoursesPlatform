@@ -77,6 +77,9 @@
                                     <th>Name</th>
                                     <th>Code</th>
                                     <th>Status</th>
+                                    <th>Categories</th>
+                                    <th>Teacher</th>
+                                    <th>Published By</th>
                                     <th>change_status_by</th>
                                 </tr>
                                 </thead>
@@ -104,9 +107,14 @@
                                             </div>
                                         </form>
                                     </td>
-                                    
-                                    
-                                    <td>{{$course->admin->name}}</td>
+                                    <td>
+                                        @foreach($course->categories as $courseCategory)
+                                         {{$courseCategory->category->name}} -
+                                        @endforeach
+                                    </td>
+                                    <td>{{$course->teacher->name ?? '-'}}</td>
+                                    <td>{{$course->pyblishedBy->name ?? '-'}}</td>
+                                    <td>{{$course->changeStatusBy->name ?? '-'}}</td>
                                     
                                 </tr>
                                 @endforeach

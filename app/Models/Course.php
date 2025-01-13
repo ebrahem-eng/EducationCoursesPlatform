@@ -38,7 +38,7 @@ class Course extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(Admin::class, 'teacher_id');
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 
     public function categories()
