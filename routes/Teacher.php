@@ -25,5 +25,11 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::get('/index', 'index')->name('index');
 
+        Route::get('/create', 'create')->name('create');
+
+        Route::post('/store', 'store')->name('store');
+
+        Route::get('/sub/category/{id}', 'getSubCategories')->name('sub.category');
+
     });
 });

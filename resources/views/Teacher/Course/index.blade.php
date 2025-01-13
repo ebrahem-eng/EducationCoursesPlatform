@@ -78,6 +78,7 @@
                                     <th>Code</th>
                                     <th>Course Status</th>
                                     <th>Categories</th>
+                                    <th>Image</th>
                                     <th>Publish Status</th>
                                     <th>Published By</th>
                                     <th>Reject Cause</th>
@@ -108,6 +109,11 @@
                                             @foreach($course->categories as $courseCategory)
                                              {{$courseCategory->category->name}} -
                                             @endforeach
+                                        </td>
+
+                                        <td>
+                                            <img src="{{ asset('image/' . $course->image) }}"
+                                                 style="width: 100px; height: 100px;">
                                         </td>
 
                                         <td>

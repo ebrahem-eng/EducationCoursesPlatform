@@ -90,15 +90,15 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="{{route('admin.teacher.create')}}" class="menu-link">
-                        <div data-i18n="Without navbar">Create Teacher</div>
+                    <a href="{{route('teacher.course.create')}}" class="menu-link">
+                        <div data-i18n="Without navbar">Create Course</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('admin.teacher.archive')}}" class="menu-link">
-                        <div data-i18n="Container">Teacher Archive</div>
-                    </a>
-                </li>
+{{--                <li class="menu-item">--}}
+{{--                    <a href="{{route('admin.teacher.archive')}}" class="menu-link">--}}
+{{--                        <div data-i18n="Container">Teacher Archive</div>--}}
+{{--                    </a>--}}
+{{--                </li>--}}
             </ul>
         </li>
 

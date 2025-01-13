@@ -21,7 +21,8 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained('teachers');
             $table->foreignId('rejected_by')->nullable()->constrained('admins');
             $table->foreignId('publish_by')->nullable()->constrained('admins');
-            $table->string('rejected_cause');
+            $table->string('rejected_cause')->nullable();
+            $table->string('image')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
