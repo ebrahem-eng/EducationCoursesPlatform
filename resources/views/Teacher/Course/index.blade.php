@@ -84,6 +84,7 @@
                                     <th>Reject Cause</th>
                                     <th>Reject By</th>
                                     <th>Change Status By</th>
+                                    <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -146,6 +147,22 @@
                                         </td>
                                         <td>{{$course->rejectedBy->name ?? '-'}}</td>
                                         <td>{{$course->changeStatusBy->name ?? '-'}}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <form method="post" action="{{route('teacher.course.delete' ,$course->id)}}">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button class="dropdown-item btn" type="submit">
+                                                            <i class="bx bx-trash me-1"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                                 </tbody>

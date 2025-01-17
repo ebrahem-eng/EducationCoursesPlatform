@@ -105,4 +105,18 @@ class CourseController extends Controller
                 ->with('error_message', 'Failed to create course. Please try again.');
         }
     }
+
+    public function delete($id)
+    {
+       $courseID = $id;
+       $course = Course::where('id', $courseID)->first();
+
+       if($course->status_publish == 1)
+       {
+         return redirect()->back()->with('error_message', 'Course is already published');
+       }
+
+       $course->forceDelete();
+       return redirect()->back()->with('success_message', 'Course Deleted Successfully');
+    }
 }
