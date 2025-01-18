@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreignId('publish_by')->nullable()->constrained('admins');
             $table->string('rejected_cause')->nullable();
             $table->string('image')->nullable();
+            $table->integer('duration');
             $table->softDeletes();
             $table->timestamps();
         });

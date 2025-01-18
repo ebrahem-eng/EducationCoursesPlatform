@@ -21,8 +21,10 @@ class CourseSeeder extends Seeder
             'status_publish' => '1',
             'change_status_by'=> '1',
             'teacher_id' => '1',
-            'rejected_by' => '1',
-            'rejected_cause' => 'something to try'
+            'publish_by' => '1',
+            'duration' => '10'
+//            'rejected_by' => '1',
+//            'rejected_cause' => 'something to try'
         ]);
 
         Course::create([
@@ -33,18 +35,21 @@ class CourseSeeder extends Seeder
             'change_status_by'=> '1',
             'teacher_id' => '1',
             'rejected_by' => '1',
-            'rejected_cause' => 'something to try'
+            'rejected_cause' => 'something to try',
+            'duration' => '5'
         ]);
 
         Course::create([
             'name' => 'Node.JS',
             'code' => 'qweJS',
             'status' => '1',
-            'status_publish' => '0',
+            'status_publish' => '1',
             'change_status_by'=> '1',
             'teacher_id' => '1',
-            'rejected_by' => '1',
-            'rejected_cause' => 'something to try'
+            'publish_by' => '1',
+            'duration' => '4'
+//            'rejected_by' => '1',
+//            'rejected_cause' => 'something to try'
         ]);
 
         Course::create([
@@ -55,7 +60,8 @@ class CourseSeeder extends Seeder
             'change_status_by'=> '1',
             'teacher_id' => '1',
             'rejected_by' => '1',
-            'rejected_cause' => 'something to try'
+            'rejected_cause' => 'something to try',
+            'duration' => '8'
         ]);
     }
 }

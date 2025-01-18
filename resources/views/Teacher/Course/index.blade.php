@@ -79,6 +79,7 @@
                                     <th>Course Status</th>
                                     <th>Categories</th>
                                     <th>Image</th>
+                                    <th>Duration(Week)</th>
                                     <th>Publish Status</th>
                                     <th>Published By</th>
                                     <th>Reject Cause</th>
@@ -115,6 +116,10 @@
                                         <td>
                                             <img src="{{ asset('image/' . $course->image) }}"
                                                  style="width: 100px; height: 100px;">
+                                        </td>
+
+                                        <td>
+                                            {{$course->duration}}
                                         </td>
 
                                         <td>

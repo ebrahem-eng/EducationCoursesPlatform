@@ -20,7 +20,8 @@ class Course extends Model
         'rejected_by',
         'publish_by',
         'teacher_id',
-        'image'
+        'image',
+        'duration'
      ];
 
     public function pyblishedBy()

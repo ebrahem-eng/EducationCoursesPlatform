@@ -152,6 +152,25 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label" for="basic-icon-default-email">Duration(Week)</label>
+                                        <div class="input-group input-group-merge">
+                                            <span class="input-group-text"><i class="bx bx-time"></i></span>
+                                            <input
+                                                type="number"
+                                                name="duration"
+                                                id="basic-icon-default-email"
+                                                class="form-control"
+                                                placeholder="5"
+                                                aria-label="5"
+                                                max="48"
+                                                required
+                                            />
+                                            <span id="basic-icon-default-email2" class="input-group-text"></span>
+                                        </div>
+                                        <div class="form-text">Max Duration (48) week</div>
+                                    </div>
+
                                 </div>
 
                                 <div class="row">

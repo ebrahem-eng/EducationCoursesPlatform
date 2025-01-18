@@ -66,6 +66,7 @@ class CourseController extends Controller
                 'status' => '0',
                 'status_publish' => '0',
                 'image' => $path,
+                'duration' => $request->input('duration'),
                 'teacher_id' => Auth::guard('teacher')->user()->id,
             ]);
 
