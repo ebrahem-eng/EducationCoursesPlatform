@@ -29,7 +29,7 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::post('/store', 'store')->name('store');
 
-        Route::post('/delete/{id}', 'delete')->name('delete');
+        Route::delete('/delete/{id}', 'delete')->name('delete');
 
         Route::get('/sub/category/{id}', 'getSubCategories')->name('sub.category');
 

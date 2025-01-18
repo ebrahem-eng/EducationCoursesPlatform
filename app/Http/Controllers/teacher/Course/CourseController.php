@@ -116,6 +116,11 @@ class CourseController extends Controller
          return redirect()->back()->with('error_message', 'Course is already published');
        }
 
+       if(!empty($course->rejected_by) || !empty($course->rejected_cause))
+       {
+           return redirect()->back()->with('error_message', 'Course rejected cant deleted');
+       }
+
        $course->forceDelete();
        return redirect()->back()->with('success_message', 'Course Deleted Successfully');
     }
