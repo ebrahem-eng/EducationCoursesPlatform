@@ -43,9 +43,10 @@ class StudentController extends Controller
             return redirect()->route('admin.student.index')->with('success_message', 'Student Updated Successfully');
         } else {
             if ($student->img != null) {
+                $userImageDirectory = 'StudentImage/' . $student->id;
                 Storage::disk('image')->delete($student->img);
                 $image = $request->file('img')->getClientOriginalName();
-                $path = $request->file('img')->storeAs('StudentImage', $image, 'image');
+                $path = $request->file('img')->storeAs($userImageDirectory, $image, 'image');
 
                 $student->update([
                     'name' => $request->input('name'),
@@ -60,9 +61,9 @@ class StudentController extends Controller
 
                 return redirect()->route('admin.student.index')->with('success_message', 'Student Updated Successfully');
             } else {
-
+                $userImageDirectory = 'StudentImage/' . $student->id;
                 $image = $request->file('img')->getClientOriginalName();
-                $path = $request->file('img')->storeAs('StudentImage', $image, 'image');
+                $path = $request->file('img')->storeAs($userImageDirectory, $image, 'image');
 
                 $student->update([
                     'name' => $request->input('name'),

@@ -14,6 +14,95 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet" />
+
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .profile-trigger:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-name {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .dropdown-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .dropdown-menu li a:hover {
+            background: #f5f5f5;
+        }
+
+        .login-btn {
+            padding: 8px 20px;
+            background: #2196f3;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #1976d2;
+        }
+    </style>
 </head>
 <body>
 <!-- Start Header -->
@@ -69,6 +158,32 @@
                 <!-- End Megamenu -->
             </li>
         </ul>
+
+        <!-- Start User Profile Section -->
+        <div class="user-profile">
+            @if(\Illuminate\Support\Facades\Auth::guard('student')->check())
+                <div class="profile-dropdown">
+                    <div class="profile-trigger">
+                        <img src="{{asset('Image/' . \Illuminate\Support\Facades\Auth::guard('student')->user()->img)}}" alt="User Profile" class="profile-img">
+                        <div class="dropdown-content">
+                            <div class="user-info">
+                                <h4 class="user-name">{{\Illuminate\Support\Facades\Auth::guard('student')->user()->name}}</h4>
+                                <span class="user-email">{{\Illuminate\Support\Facades\Auth::guard('student')->user()->email}}</span>
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li><a href="#profile">My Profile</a></li>
+                                <li><a href="#settings">Settings</a></li>
+                                <li><a href="{{route('student.logout')}}">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <a href="{{route('student.login.page')}}" class="login-btn">Login</a>
+            @endif
+        </div>
+        <!-- End User Profile Section -->
+
     </div>
 </div>
 <!-- End Header -->
@@ -90,96 +205,22 @@
 <!-- End Landing -->
 <!-- Start Articles -->
 <div class="articles" id="articles">
-    <h2 class="main-title">Articles</h2>
+    <h2 class="main-title">Courses</h2>
     <div class="container">
+
+        @foreach($courses as $course)
         <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-01.jpg')}}" alt="" />
+            <img src="{{'Image/'.$course->image}}" alt="" />
             <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
+                <h3>{{$course->name}}</h3>
+                <p>{{$course->code}}</p>
             </div>
             <div class="info">
-                <a href="">Read More</a>
+                <a href="{{route('student.course.details' , $course->id)}}">Details</a>
                 <i class="fas fa-long-arrow-alt-right"></i>
             </div>
         </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-02.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-03.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-04.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-05.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-06.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-07.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
-        <div class="box">
-            <img src="{{asset('web_assets/imgs/cat-08.jpg')}}" alt="" />
-            <div class="content">
-                <h3>Test Title</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit</p>
-            </div>
-            <div class="info">
-                <a href="">Read More</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
-            </div>
-        </div>
+        @endforeach
     </div>
 </div>
 <div class="spikes"></div>

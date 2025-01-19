@@ -22,7 +22,8 @@ class CourseSeeder extends Seeder
             'change_status_by'=> '1',
             'teacher_id' => '1',
             'publish_by' => '1',
-            'duration' => '10'
+            'duration' => '10',
+            'image' => 'CourseImage/js.png'
 //            'rejected_by' => '1',
 //            'rejected_cause' => 'something to try'
         ]);
@@ -47,7 +48,8 @@ class CourseSeeder extends Seeder
             'change_status_by'=> '1',
             'teacher_id' => '1',
             'publish_by' => '1',
-            'duration' => '4'
+            'duration' => '4',
+            'image' => 'CourseImage/node.png'
 //            'rejected_by' => '1',
 //            'rejected_cause' => 'something to try'
         ]);
