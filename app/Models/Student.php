@@ -23,4 +23,9 @@ class Student extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function courses()
+    {
+        return $this->hasMany(StudentCourse::class, 'student_id');
+    }
 }

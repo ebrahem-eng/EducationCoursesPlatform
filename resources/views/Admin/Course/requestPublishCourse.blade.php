@@ -82,6 +82,7 @@
                                     <th>Reject By</th>
                                     <th>Reject Cause</th>
                                     <th>change_status_by</th>
+                                    <th>Action</th>
 
                                 </tr>
                                 </thead>
@@ -118,8 +119,8 @@
                                     <td>
                                     @if (empty($course->rejected_cause))
                                     -
-                                    @else {{$course->rejected_cause}}   
-                                    @endif    
+                                    @else {{$course->rejected_cause}}
+                                    @endif
                                     </td>
                                     <td>{{$course->changeStatusBy->name}}</td>
                                     <td>

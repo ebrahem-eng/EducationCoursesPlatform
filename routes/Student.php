@@ -19,9 +19,9 @@ Route::group(['prefix' => 'student', 'middleware' => ['student.auth'], 'as' => '
     //============================== Course Route ==========================
     Route::group(['prefix' => 'course', 'as' => 'course.'], function () {
 
-        Route::get('/details/{id}', [CourseController::class, 'courseDetails'])->name('details');
+        Route::get('/details/{id}', [CourseController::class, 'courseDetails'])->name('details')->withoutMiddleware('student.auth');
 
-        Route::get('/register/{id}', [CourseController::class, 'register'])->name('register');
+        Route::post('/register/{id}', [CourseController::class, 'register'])->name('register');
 
     });
 });

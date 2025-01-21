@@ -343,13 +343,23 @@
             </div>
 
             @if(Auth::guard('student')->check())
-                <form action="" method="get">
-                    @csrf
-                    <button type="submit" class="register-btn">Register Now</button>
-                </form>
+                @php
+                    $isRegistered = \Illuminate\Support\Facades\Auth::guard('student')->user()->courses->contains('id', $course->id);
+                @endphp
+                @if($isRegistered)
+                    <br>
+                    <span class="register-btn">Registered</span>
+                    <br>
+                @else
+                    <form action="{{ route('student.course.register', $course->id) }}" method="post">
+                        @csrf
+                        <button type="submit" class="register-btn">Register Now</button>
+                    </form>
+                @endif
             @else
                 <a href="{{ route('student.login.page') }}" class="register-btn">Login to Register</a>
             @endif
+
         </div>
     </div>
 </div>
