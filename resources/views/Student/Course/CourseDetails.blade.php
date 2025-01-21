@@ -229,6 +229,67 @@
 
         .login-btn:hover {
             background: #1976d2;
+        }
+
+        /* Error message styling */
+        .error-message {
+            color: #ff4444;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Success animation */
+        .success-animation {
+            animation: successPulse 0.5s ease;
+        }
+
+        /* Success message styling */
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Error message styling */
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Dismiss button styling */
+        .alert .btn-close {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .alert .btn-c
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -316,10 +377,29 @@
 
 <!-- Course Details Section -->
 <div class="course-details">
+    {{-- message Section --}}
+    @if (session('success_message'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> {{ session('success_message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+        </div>
+    @endif
+
+    @if (session('error_message'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> {{ session('error_message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+        </div>
+    @endif
+
+    {{-- end message Section --}}
+
     <div class="container">
+
         <div class="image">
             <img src="{{ asset('Image/' . $course->image) }}" alt="{{ $course->name }}">
         </div>
+
         <div class="info">
             <h2>{{ $course->name }}</h2>
             <div class="code">Course Code: {{ $course->code }}</div>
@@ -372,6 +452,7 @@
 </div>
 
 <script src="{{ asset('web_assets/js/main.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <div class="footer">
     <div class="container">
         <div class="box">

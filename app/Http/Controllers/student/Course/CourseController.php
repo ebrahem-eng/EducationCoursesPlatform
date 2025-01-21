@@ -34,7 +34,7 @@ class CourseController extends Controller
         }
 
         $student = Auth::guard('student')->user();
-        $checkStudent = StudentCourse::where('student_id' , $student->id)->first();
+        $checkStudent = StudentCourse::where('student_id' , $student->id)->where('course_id' , $course->id)->first();
         if($checkStudent){
             return redirect()->back()->with('error_message' , 'you have already registered this course');
         }

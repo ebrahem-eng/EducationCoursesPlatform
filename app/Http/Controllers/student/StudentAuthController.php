@@ -28,7 +28,7 @@ class StudentAuthController extends Controller
         ])) {
             return redirect()->route('home');
         } else {
-            return redirect()->back()->with('error', 'Invalid email or password');
+            return redirect()->back()->with('error_message', 'Invalid email or password');
         }
     }
 
