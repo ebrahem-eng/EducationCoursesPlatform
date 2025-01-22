@@ -4,8 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Courses - Elzero</title>
+    <link rel="stylesheet" href="{{ asset('web_assets/css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ asset('web_assets/css/elzero.css') }}">
+    <link rel="stylesheet" href="{{ asset('web_assets/css/all.min.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .profile-trigger:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-name {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .dropdown-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .dropdown-menu li a:hover {
+            background: #f5f5f5;
+        }
+
+        .login-btn {
+            padding: 8px 20px;
+            background: #2196f3;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #1976d2;
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -137,72 +222,33 @@
     </style>
 </head>
 <body>
-<div class="header">
-    <div class="container">
-        <a href="#" class="logo">Elzero</a>
-        <div class="user-profile">
-            <img src="/api/placeholder/40/40" alt="User Profile" class="profile-img">
-        </div>
-    </div>
-</div>
+
+@include('layouts.Student.header')
 
 <div class="my-courses">
     <div class="container">
         <h1>My Courses</h1>
         <div class="courses-grid">
-            <!-- Course Card 1 -->
+
+            @foreach($student->courses as $course)
             <div class="course-card">
                 <div class="course-image">
-                    <img src="/api/placeholder/300/200" alt="Web Development">
+                    <img src="{{asset('Image/'.$course->course->image)}}" alt="Web Development">
                     <div class="week-circle">
-                        <span class="week-number">12</span>
+                        <span class="week-number">{{$course->course->duration}}</span>
                         <span class="week-text">weeks</span>
                     </div>
                 </div>
                 <div class="course-info">
-                    <h3 class="course-title">Web Development</h3>
+                    <h3 class="course-title">{{$course->course->name}} - {{$course->course->code}}</h3>
                     <div class="progress-container">
                         <div class="progress-bar" style="width: 75%"></div>
                     </div>
                     <div class="progress-text">75% Complete</div>
                 </div>
-            </div>
 
-            <!-- Course Card 2 -->
-            <div class="course-card">
-                <div class="course-image">
-                    <img src="/api/placeholder/300/200" alt="Python Programming">
-                    <div class="week-circle">
-                        <span class="week-number">8</span>
-                        <span class="week-text">weeks</span>
-                    </div>
-                </div>
-                <div class="course-info">
-                    <h3 class="course-title">Python Programming</h3>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: 45%"></div>
-                    </div>
-                    <div class="progress-text">45% Complete</div>
-                </div>
             </div>
-
-            <!-- Course Card 3 -->
-            <div class="course-card">
-                <div class="course-image">
-                    <img src="/api/placeholder/300/200" alt="UI/UX Design">
-                    <div class="week-circle">
-                        <span class="week-number">6</span>
-                        <span class="week-text">weeks</span>
-                    </div>
-                </div>
-                <div class="course-info">
-                    <h3 class="course-title">UI/UX Design</h3>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: 30%"></div>
-                    </div>
-                    <div class="progress-text">30% Complete</div>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </div>

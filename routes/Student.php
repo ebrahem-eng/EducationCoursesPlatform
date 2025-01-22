@@ -23,5 +23,7 @@ Route::group(['prefix' => 'student', 'middleware' => ['student.auth'], 'as' => '
 
         Route::post('/register/{id}', [CourseController::class, 'register'])->name('register');
 
+        Route::get('/my-courses', [CourseController::class, 'myCourses'])->name('myCourses');
+
     });
 });

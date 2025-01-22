@@ -10,7 +10,7 @@ class StudentAuthMiddleware
     public function handle($request, Closure $next)
     {
         if (!Auth::guard('student')->check()) {
-            return redirect()->route('student.login');
+            return redirect()->route('student.login.page');
         }
         return $next($request);
     }

@@ -45,4 +45,11 @@ class CourseController extends Controller
         ]);
         return redirect()->back()->with('success_message' , 'you have successfully registered this course');
     }
+
+    public function myCourses()
+    {
+        $student = Auth::guard('student')->user();
+        return view('Student.Course.MyCourses' , compact('student'));
+
+    }
 }
