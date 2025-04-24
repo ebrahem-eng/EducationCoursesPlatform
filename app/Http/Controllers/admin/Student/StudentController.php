@@ -37,6 +37,7 @@ class StudentController extends Controller
                 'status' => $request->input('status'),
                 'age' => $request->input('age'),
                 'gender' => $request->input('gender'),
+                'block' => $request->input('block'),
                 'updated_at' => now(),
             ]);
 
@@ -55,6 +56,7 @@ class StudentController extends Controller
                     'status' => $request->input('status'),
                     'age' => $request->input('age'),
                     'gender' => $request->input('gender'),
+                    'block' => $request->input('block'),
                     'img' => $path,
                     'updated_at' => now(),
                 ]);
@@ -72,6 +74,7 @@ class StudentController extends Controller
                     'status' => $request->input('status'),
                     'age' => $request->input('age'),
                     'gender' => $request->input('gender'),
+                    'block' => $request->input('block'),
                     'img' => $path,
                     'updated_at' => now(),
                 ]);
@@ -79,4 +82,43 @@ class StudentController extends Controller
             }
         }
     }
+
+    public function archive()
+    {
+        $students = Student::onlyTrashed()->get();
+        return view('Admin.Student.archive', compact('students'));
+    }
+
+    public function softDelete($id)
+    {
+        $student = Student::findOrFail($id);
+
+        $student->delete();
+
+        return redirect()->route('admin.student.index')->with('success_message', 'Student Deleted Successfully');
+    }
+
+    public function forceDelete($id)
+    {
+        $student = Student::withTrashed()->where('id', $id)->first();
+        if ($student) {
+            if ($student->img) {
+                Storage::disk('image')->delete($student->img);
+            }
+            $student->forceDelete();
+
+            return redirect()->route('admin.student.archive')->with('success_message', 'Student Deleted Successfully');
+        } else {
+            return redirect()->back()->with('error_message', 'Student Not Found');
+        }
+    }
+
+    public function restore($id)
+    {
+        Student::withTrashed()->where('id', $id)->restore();
+
+        return redirect()->route('admin.student.archive')->with('success_message', 'Student Restored Successfully');
+    }
+
+
 }

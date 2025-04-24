@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends Authenticatable
 {
+    use SoftDeletes;
     protected $guard = 'student';
     protected $fillable = [
         'name',
@@ -17,6 +19,7 @@ class Student extends Authenticatable
         'gender',
         'img',
         'created_by',
+        'block',
     ];
 
     protected $hidden = [
