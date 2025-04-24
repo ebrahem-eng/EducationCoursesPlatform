@@ -157,6 +157,11 @@
                         <div data-i18n="Basic">Student Table</div>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a href="{{route('admin.student.archive')}}" class="menu-link">
+                        <div data-i18n="Basic">Student Archive</div>
+                    </a>
+                </li>
             </ul>
         </li>
 

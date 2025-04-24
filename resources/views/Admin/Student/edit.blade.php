@@ -154,6 +154,23 @@
                                         </div>
                                     </div>
 
+                                    <!-- Block Status -->
+                                    <div class="mb-3 col-md-4">
+                                        <label class="form-label" for="basic-icon-default-block">Block Status</label>
+                                        <div class="input-group input-group-merge">
+                                            <span class="input-group-text"><i class="bx bx-block"></i></span>
+                                            <select
+                                                name="block"
+                                                id="basic-icon-default-block"
+                                                class="form-control"
+                                                required
+                                            >
+                                                <option value="0" {{ $student->block == 0 ? 'selected' : '' }}>Not Blocked</option>
+                                                <option value="1" {{ $student->block == 1 ? 'selected' : '' }}>Blocked</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <!-- Gender -->
                                     <div class="mb-3 col-md-4">
                                         <label class="form-label" for="basic-icon-default-gender">Gender</label>

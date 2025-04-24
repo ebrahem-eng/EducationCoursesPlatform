@@ -15,7 +15,7 @@
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Teacher Table</title>
+    <title>Student Archive Table</title>
 
     <meta name="description" content="" />
 
@@ -28,7 +28,6 @@
 <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
         <!-- Menu -->
-
 
         @include('layouts.Admin.Sidebar')
 
@@ -48,7 +47,6 @@
 
                 <div class="container-xxl flex-grow-1 container-p-y">
 
-
                     <div class="card">
 
                         {{-- message Section --}}
@@ -67,8 +65,7 @@
                         @endif
                         {{-- end message Section --}}
 
-
-                        <h5 class="card-header">Students Table</h5>
+                        <h5 class="card-header">Student Archive Table</h5>
                         <div class="table-responsive text-nowrap">
                             <table class="table">
                                 <thead>
@@ -78,78 +75,73 @@
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Status</th>
-                                    <th>Block Status</th>
                                     <th>Image</th>
                                     <th>Gender</th>
                                     <th>Age</th>
                                     <th>Created Date</th>
                                     <th>Last Updated Date</th>
+                                    <th>Deleted Date</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @foreach($students as $student)
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>{{$student->name}}</td>
-                                    <td>{{$student->email}}</td>
-                                    <td>{{$student->phone}}</td>
-                                    <td>
-                                        @if ($student->status == 1)
-                                            <div class="btn btn-success">Active</div>
-                                        @else
-                                            <div class="btn btn-danger">Not Active</div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($student->block == 1)
-                                            <div class="btn btn-danger">Blocked</div>
-                                        @else
-                                            <div class="btn btn-success">Not Blocked</div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <img src="{{ asset('image/' . $student->img) }}"
-                                             style="width: 100px; height: 100px;">
-                                    </td>
-                                    <td>
-                                        @if ($student->gender == 0)
-                                            Female
-                                        @else
-                                            Male
-                                        @endif
-                                    </td>
-                                    <td>{{$student->age}}</td>
-                                    {{-- <td>{{$student->admin->name}}</td> --}}
-                                    <td>{{$student->created_at}}</td>
-                                    <td>{{$student->updated_at}}</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="{{route('admin.student.edit' , $student->id)}}"
-                                                ><i class="bx bx-edit-alt me-1"></i> Edit</a
-                                                >
+                                    <tr>
+                                        <th scope="row">{{ $loop->iteration }}</th>
+                                        <td>{{$student->name}}</td>
+                                        <td>{{$student->email}}</td>
+                                        <td>{{$student->phone}}</td>
+                                        <td>
+                                            @if ($student->status == 1)
+                                                <div class="btn btn-success">Active</div>
+                                            @else
+                                                <div class="btn btn-danger">Not Active</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <img src="{{ asset('image/' . $student->img) }}"
+                                                 style="width: 100px; height: 100px;">
+                                        </td>
+                                        <td>
+                                            @if ($student->gender == 0)
+                                                Female
+                                            @else
+                                                Male
+                                            @endif
+                                        </td>
+                                        <td>{{$student->age}}</td>
+                                        <td>{{$student->created_at}}</td>
+                                        <td>{{$student->updated_at}}</td>
+                                        <td>{{$student->deleted_at}}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <form action="{{ route('admin.student.restore', $student->id) }}" method="POST" class="dropdown-item p-0">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item btn">
+                                                            <i class="bx bx-refresh me-1"></i> Restore
+                                                        </button>
+                                                    </form>
 
-                                                <form method="post" action="{{route('admin.student.soft.delete' ,$student->id)}}">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <button class="dropdown-item btn" type="submit">
-                                                        <i class="bx bx-trash me-1"></i> Delete
-                                                    </button>
-                                                </form>
+                                                    <form method="post" action="{{route('admin.student.force.delete' ,$student->id)}}">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button class="dropdown-item btn" type="submit">
+                                                            <i class="bx bx-trash me-1"></i>Force Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
                                 @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
 
                 </div>
                 <!-- / Content -->
@@ -173,4 +165,4 @@
 @include('layouts.Admin.LinkJS')
 
 </body>
-</html>
+</html> 
