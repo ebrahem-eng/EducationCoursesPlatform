@@ -12,7 +12,7 @@ class StudentAuthMiddleware
         if (!Auth::guard('student')->check()) {
             return redirect()->route('student.login.page')->with('error_message', 'Please login first');
         }
-
+        
         if (Auth::guard('student')->user()->block) {
             Auth::guard('student')->logout();
             return redirect()->route('student.login.page')->with('error_message', 'Your account has been blocked');
