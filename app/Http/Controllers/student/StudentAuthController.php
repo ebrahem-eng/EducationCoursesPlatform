@@ -22,13 +22,31 @@ class StudentAuthController extends Controller
     {
         $check = $request->all();
 
+        $student = Student::where('email', $check['email'])->first();
+
+        // First check if student exists
+        if (!$student) {
+            return redirect()->back()->with('error_message', 'Invalid email or password');
+        }
+
+        // Then check block status
+        if ($student->block == 1) {
+            return redirect()->back()->with('error_message', 'Your account has been blocked');
+        }
+
+        // Then check active status
+        if ($student->status == 0) {
+            return redirect()->back()->with('error_message', 'Your account is not activated yet');
+        }
+
+        
         if (Auth::guard('student')->attempt([
             'email' => $check['email'],
             'password' => $check['password']
         ])) {
             return redirect()->route('home');
         } else {
-            return redirect()->back()->with('error_message', 'Invalid email or password');
+            return redirect()->back()->with('error_message', 'Invalid password');
         }
     }
 
