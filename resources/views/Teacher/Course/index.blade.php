@@ -78,6 +78,7 @@
                                     <th>Code</th>
                                     <th>Course Status</th>
                                     <th>Categories</th>
+                                    <th>Skills</th>
                                     <th>Image</th>
                                     <th>Duration(Week)</th>
                                     <th>Publish Status</th>
@@ -108,10 +109,25 @@
                                         </td>
 
                                         <td>
-                                            @foreach($course->categories as $courseCategory)
-                                             {{$courseCategory->category->name}} -
-                                            @endforeach
+                                            @forelse($course->categories as $courseCategory)
+                                             {{$courseCategory->category->name ?? '-' }} -
+                              
+                                            @empty
+        -
+                                        @endforelse
                                         </td>
+
+                                        <td>
+                                      @forelse($course->courseSkills as $courseSkill)
+                        <div class="mb-1">
+                       <span class="badge bg-primary">{{ $courseSkill->skill->name ?? '-' }}</span>
+            <span class="badge bg-info">{{ $courseSkill->percentage ?? '0' }}%</span>
+        </div>
+    @empty
+        -
+    @endforelse
+</td>
+
 
                                         <td>
                                             <img src="{{ asset('image/' . $course->image) }}"
