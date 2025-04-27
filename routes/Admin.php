@@ -5,7 +5,7 @@ use App\Http\Controllers\admin\Student\StudentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\Teacher\TeacherController;
-
+use App\Http\Controllers\admin\Skill\SkillController;
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
@@ -130,7 +130,23 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
 
         Route::put('/reject/{id}','rejectCourse')->name('rejectCourse');
 
+    });
 
+     //=================================== Skills Route =============================
+
+     Route::group(['prefix' => 'skill', 'as' => 'skill.', 'controller' => SkillController::class], function () { 
+
+        Route::get('/index', 'index')->name('index');
+
+        Route::get('/create', 'create')->name('create');
+
+        Route::post('/store', 'store')->name('store');
+
+        Route::get('/edit/{id}', 'edit')->name('edit');
+
+        Route::put('/update/{id}', 'update')->name('update');
+
+        Route::delete('/delete/{id}' , 'delete')->name('delete'); 
 
     });
 
