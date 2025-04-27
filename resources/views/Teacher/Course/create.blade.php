@@ -69,15 +69,15 @@
                             <h5 class="mb-0">Create Teacher</h5>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="{{route('teacher.course.store')}}" enctype="multipart/form-data">
+                            <form method="post" action="{{route('teacher.course.store.step1')}}" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row">
                                     <!-- Full Name -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label" for="basic-icon-default-fullname">Name</label>
                                         <div class="input-group input-group-merge">
-                        <span id="basic-icon-default-fullname2" class="input-group-text">
-                            <i class="bx bx-user"></i>
+                                 <span id="basic-icon-default-fullname2" class="input-group-text">
+                                  <i class="bx bx-user"></i>
                                            </span>
                                             <input
                                                 name="name"
@@ -195,7 +195,7 @@
 
 
 
-                                <button type="submit" class="btn btn-primary">Create</button>
+                                <button type="submit" class="btn btn-primary">Next <i class="bx bx-right-arrow-alt"></i></button>
                             </form>
                         </div>
                     </div>

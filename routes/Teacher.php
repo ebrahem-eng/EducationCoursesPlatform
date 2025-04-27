@@ -27,7 +27,11 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::get('/create', 'create')->name('create');
 
-        Route::post('/store', 'store')->name('store');
+        Route::post('/store/step1', 'storeStep1')->name('store.step1');
+
+        Route::get('/create/skills', 'createSkills')->name('create.skills');
+
+        Route::post('/store/step2', 'storeStep2')->name('store.step2');
 
         Route::delete('/delete/{id}', 'delete')->name('delete');
 
