@@ -24,4 +24,11 @@ class CourseModelExamQuestion extends Model
     {
         return $this->belongsTo(CourseModelExam::class, 'course_model_exam_id');
     }
+
+    public function courseModelExam()
+    {
+        return $this->belongsTo(CourseModelExam::class, 'course_model_exam_id');
+    }
+
+    
 }

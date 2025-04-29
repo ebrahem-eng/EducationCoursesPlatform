@@ -23,4 +23,6 @@ class CourseModuleHomeWorkQuastion extends Model
     {
         return $this->belongsTo(CourseModuleHomeWork::class , 'course_module_home_work_id');
     }
+
+    
 }

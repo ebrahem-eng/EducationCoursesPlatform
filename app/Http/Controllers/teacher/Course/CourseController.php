@@ -207,8 +207,8 @@ class CourseController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('teacher.course.module.videos', ['module_id' => $module->id])
-                           ->with('success_message', 'Modules created successfully. Now add videos to your module.');
+            return redirect()->route('teacher.course.index')
+                           ->with('success_message', 'Modules created successfully. You can now manage content for each module.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error_message', 'Failed to create modules. Please try again.');
@@ -219,7 +219,8 @@ class CourseController extends Controller
     public function createModuleVideos($module_id)
     {
         $module = \App\Models\CourseModule::findOrFail($module_id);
-        return view('Teacher.Course.createModuleVideos', compact('module'));
+        $videos = CourseModuleVideo::where('course_module_id', $module_id)->get();
+        return view('Teacher.Course.createModuleVideos', compact('module', 'videos'));
     }
 
     public function storeModuleVideos(Request $request)
@@ -256,8 +257,8 @@ class CourseController extends Controller
     
             DB::commit();
             
-            return redirect()->route('teacher.course.module.exams', ['module_id' => $request->module_id])
-                             ->with('success_message', 'Videos added successfully. Now create exams for your module.');
+            return redirect()->route('teacher.course.module.videos', ['module_id' => $request->module_id])
+                           ->with('success_message', 'Videos added successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Failed to add videos: ' . $e->getMessage());
@@ -427,31 +428,112 @@ class CourseController extends Controller
         }
     }
 
+    public function showExamQuestions($exam_id)
+    {
+        try {
+            $exam = \App\Models\CourseModelExam::with(['questions', 'module'])->findOrFail($exam_id);
+            $module = $exam->module;
+            $exams = \App\Models\CourseModelExam::where('course_module_id', $module->id)
+                ->with('questions')
+                ->get();
+            
+            // Get existing questions for this exam
+            $questions = $exam->questions;
+            
+            return view('Teacher.Course.createModuleExams', compact('module', 'exams', 'exam', 'questions'));
+        } catch (\Exception $e) {
+            \Log::error('Error loading exam questions: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Error loading exam questions. Please try again.');
+        }
+    }
+
+    public function editExamQuestion($question_id)
+    {
+        // try {
+            $question = \App\Models\CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
+            
+            // Verify the question belongs to the current teacher
+            if ($question->courseModelExam->module->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to exam question');
+            }
+            
+            return view('Teacher.Course.editExamQuestion', compact('question'));
+        // } catch (\Exception $e) {
+        //     \Log::error('Error loading exam question: ' . $e->getMessage());
+        //     return redirect()->back()->with('error_message', 'Error loading exam question. Please try again.');
+        // }
+    }
+
+    public function updateExamQuestion(Request $request, $question_id)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $question = \App\Models\CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
+            
+            // Verify the question belongs to the current teacher
+            if ($question->courseModelExam->module->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to exam question');
+            }
+
+            $question->update([
+                'question' => $request->question,
+                'option_a' => $request->option_a,
+                'option_b' => $request->option_b,
+                'option_c' => $request->option_c,
+                'option_d' => $request->option_d,
+                'correct_answer' => $request->correct_answer,
+                'mark' => $request->mark
+            ]);
+
+            DB::commit();
+            
+            return redirect()->route('teacher.course.module.exam.questions', ['exam_id' => $question->course_model_exam_id])
+                           ->with('success_message', 'Question updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to update exam question: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Failed to update question. Please try again.');
+        }
+    }
+
+    public function deleteExamQuestion($question_id)
+    {
+        try {
+            $question = \App\Models\CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
+            
+            // Verify the question belongs to the current teacher
+            if ($question->courseModelExam->module->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to exam question');
+            }
+
+            $exam_id = $question->course_model_exam_id;
+            $question->delete();
+            
+            return redirect()->route('teacher.course.module.exam.questions', ['exam_id' => $exam_id])
+                           ->with('success_message', 'Question deleted successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to delete exam question: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Failed to delete question. Please try again.');
+        }
+    }
+
     public function showHomeworkQuestions($homework_id)
     {
         try {
-            // Load homework with its relationships
-            $homework = \App\Models\CourseModuleHomeWork::with(['questions', 'courseModule.course'])->findOrFail($homework_id);
-            
-            // Verify the homework belongs to the current teacher
-            if ($homework->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
-                throw new \Exception('Unauthorized access to homework');
-            }
-    
-            $module = $homework->courseModule; // Changed from $homework->module to $homework->courseModule
+            $homework = \App\Models\CourseModuleHomeWork::with(['questions', 'courseModule'])->findOrFail($homework_id);
+            $module = $homework->courseModule;
             $homeworks = \App\Models\CourseModuleHomeWork::where('course_module_id', $module->id)
                 ->with('questions')
                 ->get();
             
-            return view('Teacher.Course.createModuleHomework', compact('module', 'homeworks', 'homework'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            \Log::error('Homework not found: ' . $e->getMessage());
-            return redirect()->route('teacher.course.index')
-                           ->with('error_message', 'The specified homework was not found.');
+            // Get existing questions for this homework
+            $questions = $homework->questions;
+            
+            return view('Teacher.Course.createModuleHomework', compact('module', 'homeworks', 'homework', 'questions'));
         } catch (\Exception $e) {
             \Log::error('Error loading homework questions: ' . $e->getMessage());
-            return redirect()->route('teacher.course.index')
-                           ->with('error_message', 'Error loading homework questions. Please try again. Error: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Error loading homework questions. Please try again.');
         }
     }
 
@@ -488,19 +570,75 @@ class CourseController extends Controller
         }
     }
 
-    public function showExamQuestions($exam_id)
+    // Add methods for homework question management
+    public function editHomeworkQuestion($question_id)
     {
         try {
-            $exam = \App\Models\CourseModelExam::with(['questions', 'module'])->findOrFail($exam_id);
-            $module = $exam->module;
-            $exams = \App\Models\CourseModelExam::where('course_module_id', $module->id)
-                ->with('questions')
-                ->get();
+            $question = \App\Models\CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
             
-            return view('Teacher.Course.createModuleExams', compact('module', 'exams', 'exam'));
+            // Verify the question belongs to the current teacher
+            if ($question->courseModuleHomeWork->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to homework question');
+            }
+            
+            return view('Teacher.Course.editHomeworkQuestion', compact('question'));
         } catch (\Exception $e) {
-            \Log::error('Error loading exam questions: ' . $e->getMessage());
-            return redirect()->back()->with('error_message', 'Error loading exam questions. Please try again.');
+            \Log::error('Error loading homework question: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Error loading homework question. Please try again.');
+        }
+    }
+
+    public function updateHomeworkQuestion(Request $request, $question_id)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $question = \App\Models\CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
+            
+            // Verify the question belongs to the current teacher
+            if ($question->courseModuleHomeWork->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to homework question');
+            }
+
+            $question->update([
+                'question' => $request->question,
+                'option_a' => $request->option_a,
+                'option_b' => $request->option_b,
+                'option_c' => $request->option_c,
+                'option_d' => $request->option_d,
+                'correct_answer' => $request->correct_answer,
+                'mark' => $request->mark
+            ]);
+
+            DB::commit();
+            
+            return redirect()->route('teacher.course.module.homework.questions', ['homework_id' => $question->course_module_home_work_id])
+                           ->with('success_message', 'Question updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to update homework question: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Failed to update question. Please try again.');
+        }
+    }
+
+    public function deleteHomeworkQuestion($question_id)
+    {
+        try {
+            $question = \App\Models\CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
+            
+            // Verify the question belongs to the current teacher
+            if ($question->courseModuleHomeWork->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to homework question');
+            }
+
+            $homework_id = $question->course_module_home_work_id;
+            $question->delete();
+            
+            return redirect()->route('teacher.course.module.homework.questions', ['homework_id' => $homework_id])
+                           ->with('success_message', 'Question deleted successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Failed to delete homework question: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Failed to delete question. Please try again.');
         }
     }
 }

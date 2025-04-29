@@ -39,22 +39,42 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         // Module management routes
         Route::get('/create/modules/{course_id}', 'createModules')->name('create.modules');
+
         Route::post('/store/modules', 'storeModules')->name('store.modules');
         
         // Video management routes
         Route::get('/module/{module_id}/videos', 'createModuleVideos')->name('module.videos');
+
         Route::post('/module/videos/store', 'storeModuleVideos')->name('module.videos.store');
         
         // Exam management routes
         Route::get('/module/{module_id}/exams', 'createModuleExams')->name('module.exams');
+
         Route::post('/module/exams/store', 'storeModuleExams')->name('module.exams.store');
+
         Route::get('/module/exam/{exam_id}/questions', 'showExamQuestions')->name('module.exam.questions');
+
         Route::post('/module/exam/questions/store', 'storeExamQuestions')->name('module.exam.questions.store');
+
+        Route::get('/module/exam/question/{question_id}/edit', 'editExamQuestion')->name('module.exam.question.edit');
+
+        Route::put('/module/exam/question/{question_id}', 'updateExamQuestion')->name('module.exam.question.update');
+
+        Route::delete('/module/exam/question/{question_id}', 'deleteExamQuestion')->name('module.exam.question.delete');
         
         // Homework management routes
         Route::get('/module/{module_id}/homework', 'createModuleHomework')->name('module.homework');
+
         Route::post('/module/homework/store', 'storeModuleHomework')->name('module.homework.store');
+
         Route::get('/module/homework/{homework_id}/questions', 'showHomeworkQuestions')->name('module.homework.questions');
+        
         Route::post('/module/homework/questions/store', 'storeHomeworkQuestions')->name('module.homework.questions.store');
+
+        Route::get('/module/homework/question/{question_id}/edit', 'editHomeworkQuestion')->name('module.homework.question.edit');
+
+        Route::put('/module/homework/question/{question_id}', 'updateHomeworkQuestion')->name('module.homework.question.update');
+
+        Route::delete('/module/homework/question/{question_id}', 'deleteHomeworkQuestion')->name('module.homework.question.delete');
     });
 });
