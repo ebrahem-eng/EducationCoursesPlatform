@@ -37,5 +37,24 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::get('/sub/category/{id}', 'getSubCategories')->name('sub.category');
 
+        // Module management routes
+        Route::get('/create/modules/{course_id}', 'createModules')->name('create.modules');
+        Route::post('/store/modules', 'storeModules')->name('store.modules');
+        
+        // Video management routes
+        Route::get('/module/{module_id}/videos', 'createModuleVideos')->name('module.videos');
+        Route::post('/module/videos/store', 'storeModuleVideos')->name('module.videos.store');
+        
+        // Exam management routes
+        Route::get('/module/{module_id}/exams', 'createModuleExams')->name('module.exams');
+        Route::post('/module/exams/store', 'storeModuleExams')->name('module.exams.store');
+        Route::get('/module/exam/{exam_id}/questions', 'showExamQuestions')->name('module.exam.questions');
+        Route::post('/module/exam/questions/store', 'storeExamQuestions')->name('module.exam.questions.store');
+        
+        // Homework management routes
+        Route::get('/module/{module_id}/homework', 'createModuleHomework')->name('module.homework');
+        Route::post('/module/homework/store', 'storeModuleHomework')->name('module.homework.store');
+        Route::get('/module/homework/{homework_id}/questions', 'showHomeworkQuestions')->name('module.homework.questions');
+        Route::post('/module/homework/questions/store', 'storeHomeworkQuestions')->name('module.homework.questions.store');
     });
 });

@@ -100,7 +100,7 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary">Create Course</button>
+                                    <button type="submit" class="btn btn-primary">Next Step</button>
                                     <a href="{{ route('teacher.course.create') }}" class="btn btn-outline-secondary">Back</a>
                                 </div>
                             </form>
