@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\CourseModuleVideo;
 
 class CourseController extends Controller
 {
@@ -95,24 +96,19 @@ class CourseController extends Controller
     public function storeStep2(Request $request)
     {
         try {
-            if (!session()->has('course_step1')) {
-                return redirect()->route('teacher.course.create')
-                    ->with('error_message', 'Please complete step 1 first');
-            }
-    
             DB::beginTransaction();
-    
+
             $step1Data = session()->get('course_step1');
-    
+
             // Now retrieve the temp image
             $tempImagePath = $step1Data['image_path'];
-    
+
             // Move the file from temp to final CourseImage folder
             $newImageName = basename($tempImagePath); // or you can rename if you want
             \Storage::disk('image')->move($tempImagePath, 'CourseImage/' . $newImageName);
-    
+
             $finalImagePath = 'CourseImage/' . $newImageName;
-    
+
             // Create course
             $course = Course::create([
                 'name' => $step1Data['name'],
@@ -123,13 +119,13 @@ class CourseController extends Controller
                 'duration' => $step1Data['duration'],
                 'teacher_id' => Auth::guard('teacher')->user()->id,
             ]);
-    
+
             // Create main category relation
             CourseCategory::create([
                 'course_id' => $course->id,
                 'category_id' => $step1Data['category'],
             ]);
-    
+
             // Create subcategories relations
             foreach ($step1Data['subcategories'] as $subcategoryId) {
                 CourseCategory::create([
@@ -137,11 +133,11 @@ class CourseController extends Controller
                     'category_id' => $subcategoryId,
                 ]);
             }
-    
+
             // Store skills
             $skills = $request->input('skills', []);
             $percentages = $request->input('percentages', []);
-    
+
             foreach ($skills as $index => $skillId) {
                 CourseSkills::create([
                     'course_id' => $course->id,
@@ -149,20 +145,20 @@ class CourseController extends Controller
                     'percentage' => $percentages[$index],
                 ]);
             }
-    
+
             DB::commit();
-    
+
             // Clear the session data
             session()->forget('course_step1');
-    
+
             return redirect()
-                ->route('teacher.course.index')
-                ->with('success_message', 'Course Created Successfully');
-    
+                ->route('teacher.course.create.modules', ['course_id' => $course->id])
+                ->with('success_message', 'Course details and skills saved successfully. Now let\'s add some modules!');
+
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Course creation failed: ' . $e->getMessage());
-    
+
             return redirect()
                 ->back()
                 ->with('error_message', 'Failed to create course. Please try again.');
@@ -187,5 +183,324 @@ class CourseController extends Controller
 
        $course->forceDelete();
        return redirect()->back()->with('success_message', 'Course Deleted Successfully');
+    }
+
+    // Module Management Methods
+    public function createModules($course_id)
+    {
+        $course = Course::findOrFail($course_id);
+        return view('Teacher.Course.createModules', compact('course'));
+    }
+
+    public function storeModules(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->modules as $moduleData) {
+                $module = new \App\Models\CourseModule([
+                    'course_id' => $request->course_id,
+                    'name' => $moduleData['name'],
+                    'description' => $moduleData['description']
+                ]);
+                $module->save();
+            }
+
+            DB::commit();
+            return redirect()->route('teacher.course.module.videos', ['module_id' => $module->id])
+                           ->with('success_message', 'Modules created successfully. Now add videos to your module.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error_message', 'Failed to create modules. Please try again.');
+        }
+    }
+
+    // Video Management Methods
+    public function createModuleVideos($module_id)
+    {
+        $module = \App\Models\CourseModule::findOrFail($module_id);
+        return view('Teacher.Course.createModuleVideos', compact('module'));
+    }
+
+    public function storeModuleVideos(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+    
+            foreach ($request->videos as $key => $videoData) {
+                if ($request->hasFile("videos.{$key}.video_file")) {
+                    $video = $request->file("videos.{$key}.video_file");
+    
+                    // Validate video file
+                    $request->validate([
+                        "videos.{$key}.video_file" => 'required|mimes:mp4,mov,avi|max:524288' // 500MB max
+                    ]);
+    
+                    // Generate unique video name
+                    $videoName = time() . '_' . uniqid() . '_' . $video->getClientOriginalName();
+    
+                    // Store video in 'public/course_videos'
+                    $videoPath = $video->storeAs('public/course_videos', $videoName);
+    
+                    // Save video information in the database
+                    CourseModuleVideo::create([
+                        'course_module_id' => $request->module_id,
+                        'name' => $videoData['name'],
+                        'description' => $videoData['description'],
+                        'video_url' => str_replace('public/', '', $videoPath) // Save path without 'public/'
+                    ]);
+                } else {
+                    throw new \Exception('Video file is required');
+                }
+            }
+    
+            DB::commit();
+            
+            return redirect()->route('teacher.course.module.exams', ['module_id' => $request->module_id])
+                             ->with('success_message', 'Videos added successfully. Now create exams for your module.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to add videos: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Failed to add videos. Please try again. Error: ' . $e->getMessage());
+        }
+    }
+    
+    
+
+    // Exam Management Methods
+    public function createModuleExams($module_id)
+    {
+        try {
+            $module = \App\Models\CourseModule::findOrFail($module_id);
+            $exams = \App\Models\CourseModelExam::where('course_module_id', $module_id)
+                ->with('questions') // Eager load questions
+                ->get();
+            
+            // Get the current exam if exam_id is provided
+            $exam = null;
+            if (request()->has('exam_id')) {
+                $exam = \App\Models\CourseModelExam::findOrFail(request()->exam_id);
+            }
+            
+            return view('Teacher.Course.createModuleExams', compact('module', 'exams', 'exam'));
+        } catch (\Exception $e) {
+            \Log::error('Error loading module exams: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Error loading module exams. Please try again.');
+        }
+    }
+
+    public function storeModuleExams(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $exam = new \App\Models\CourseModelExam([
+                'course_module_id' => $request->module_id,
+                'name' => $request->name,
+                'description' => $request->description,
+                'total_mark' => $request->total_mark
+            ]);
+            $exam->save();
+
+            DB::commit();
+            
+            // Return to the same page with exam data for adding questions
+            return redirect()->back()
+                           ->with('exam', $exam)
+                           ->with('success_message', 'Exam created successfully. Now add questions.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to create exam: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Failed to create exam. Please try again. Error: ' . $e->getMessage());
+        }
+    }
+
+    public function storeExamQuestions(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->questions as $questionData) {
+                $question = new \App\Models\CourseModelExamQuestion([
+                    'course_model_exam_id' => $request->exam_id,
+                    'question' => $questionData['question'],
+                    'option_a' => $questionData['option_a'],
+                    'option_b' => $questionData['option_b'],
+                    'option_c' => $questionData['option_c'],
+                    'option_d' => $questionData['option_d'],
+                    'correct_answer' => $questionData['correct_answer'],
+                    'mark' => $questionData['mark']
+                ]);
+                $question->save();
+            }
+
+            DB::commit();
+            return redirect()->route('teacher.course.module.homework', ['module_id' => $request->module_id])
+                           ->with('success_message', 'Exam questions added successfully. Now create homework.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error_message', 'Failed to add exam questions. Please try again.');
+        }
+    }
+
+    // Homework Management Methods
+    public function createModuleHomework($module_id)
+    {
+        try {
+            // First, verify the module exists and belongs to the current teacher
+            $module = \App\Models\CourseModule::with('course')->findOrFail($module_id);
+            
+            // Verify the module belongs to the current teacher
+            if ($module->course->teacher_id !== Auth::guard('teacher')->id()) {
+                \Log::warning('Teacher attempted to access unauthorized module: ' . $module_id);
+                return redirect()->route('teacher.course.index')
+                               ->with('error_message', 'You are not authorized to access this module.');
+            }
+
+            // Load homeworks with their questions
+            $homeworks = \App\Models\CourseModuleHomeWork::where('course_module_id', $module_id)
+                ->with('questions')
+                ->get();
+            
+            // Get the current homework if homework_id is provided
+            $homework = null;
+            if (request()->has('homework_id')) {
+                $homework = \App\Models\CourseModuleHomeWork::with('questions')->findOrFail(request()->homework_id);
+                
+                // Verify the homework belongs to the correct module
+                if ($homework->course_module_id != $module_id) {
+                    \Log::warning('Homework does not belong to the specified module');
+                    return redirect()->route('teacher.course.module.homework', ['module_id' => $module_id])
+                                   ->with('error_message', 'Invalid homework selected.');
+                }
+            }
+            
+            return view('Teacher.Course.createModuleHomework', compact('module', 'homeworks', 'homework'));
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Module or homework not found: ' . $e->getMessage());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'The specified module was not found.');
+                           
+        } catch (\Exception $e) {
+            \Log::error('Error in createModuleHomework: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'An error occurred while loading the homework page. Please try again.');
+        }
+    }
+
+    public function storeModuleHomework(Request $request)
+    {
+        try {
+            // Validate the module exists and belongs to the teacher
+            $module = \App\Models\CourseModule::with('course')->findOrFail($request->module_id);
+            
+            if ($module->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to module');
+            }
+
+            DB::beginTransaction();
+
+            $homework = new \App\Models\CourseModuleHomeWork([
+                'course_module_id' => $request->module_id,
+                'name' => $request->name,
+                'description' => $request->description,
+                'total_mark' => $request->total_mark
+            ]);
+            $homework->save();
+
+            DB::commit();
+            
+            return redirect()->route('teacher.course.module.homework', ['module_id' => $request->module_id])
+                           ->with('success_message', 'Homework created successfully. Now add questions.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            \Log::error('Module not found: ' . $e->getMessage());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'The specified module was not found.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to create homework: ' . $e->getMessage());
+            return redirect()->route('teacher.course.module.homework', ['module_id' => $request->module_id])
+                           ->with('error_message', 'Failed to create homework. Please try again.');
+        }
+    }
+
+    public function showHomeworkQuestions($homework_id)
+    {
+        try {
+            // Load homework with its relationships
+            $homework = \App\Models\CourseModuleHomeWork::with(['questions', 'courseModule.course'])->findOrFail($homework_id);
+            
+            // Verify the homework belongs to the current teacher
+            if ($homework->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
+                throw new \Exception('Unauthorized access to homework');
+            }
+    
+            $module = $homework->courseModule; // Changed from $homework->module to $homework->courseModule
+            $homeworks = \App\Models\CourseModuleHomeWork::where('course_module_id', $module->id)
+                ->with('questions')
+                ->get();
+            
+            return view('Teacher.Course.createModuleHomework', compact('module', 'homeworks', 'homework'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Homework not found: ' . $e->getMessage());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'The specified homework was not found.');
+        } catch (\Exception $e) {
+            \Log::error('Error loading homework questions: ' . $e->getMessage());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'Error loading homework questions. Please try again. Error: ' . $e->getMessage());
+        }
+    }
+
+    public function storeHomeworkQuestions(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->questions as $questionData) {
+                $question = new \App\Models\CourseModuleHomeWorkQuastion([
+                    'course_module_home_work_id' => $request->homework_id,
+                    'question' => $questionData['question'],
+                    'option_a' => $questionData['option_a'],
+                    'option_b' => $questionData['option_b'],
+                    'option_c' => $questionData['option_c'],
+                    'option_d' => $questionData['option_d'],
+                    'correct_answer' => $questionData['correct_answer'],
+                    'mark' => $questionData['mark']
+                ]);
+                $question->save();
+            }
+
+            DB::commit();
+            
+            // Redirect back to the homework page with the module_id
+            $homework = \App\Models\CourseModuleHomeWork::findOrFail($request->homework_id);
+            return redirect()->route('teacher.course.module.homework', ['module_id' => $homework->course_module_id])
+                           ->with('success_message', 'Homework questions added successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to add homework questions: ' . $e->getMessage());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'Failed to add homework questions. Please try again.');
+        }
+    }
+
+    public function showExamQuestions($exam_id)
+    {
+        try {
+            $exam = \App\Models\CourseModelExam::with(['questions', 'module'])->findOrFail($exam_id);
+            $module = $exam->module;
+            $exams = \App\Models\CourseModelExam::where('course_module_id', $module->id)
+                ->with('questions')
+                ->get();
+            
+            return view('Teacher.Course.createModuleExams', compact('module', 'exams', 'exam'));
+        } catch (\Exception $e) {
+            \Log::error('Error loading exam questions: ' . $e->getMessage());
+            return redirect()->back()->with('error_message', 'Error loading exam questions. Please try again.');
+        }
     }
 }
