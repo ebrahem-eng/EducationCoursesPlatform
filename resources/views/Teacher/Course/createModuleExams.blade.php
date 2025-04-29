@@ -117,15 +117,64 @@
                             <h5 class="mb-0">Add Questions to Exam: {{ $exam->name }}</h5>
                             <div>
                                 <span class="badge bg-primary">Total Marks: {{ $exam->total_mark }}</span>
-                                <span class="badge bg-info" id="remainingMarks">Remaining: {{ $exam->total_mark }}</span>
+                                <span class="badge bg-info" id="remainingMarks">Remaining: {{ $exam->total_mark - ($exam->questions->sum('mark') ?? 0) }}</span>
                             </div>
                         </div>
                         <div class="card-body">
+                            <!-- Display existing questions first -->
+                            @if($exam->questions->count() > 0)
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Question</th>
+                                            <th>Options</th>
+                                            <th>Correct Answer</th>
+                                            <th>Mark</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($exam->questions as $existingQuestion)
+                                        <tr>
+                                            <td>{{ $existingQuestion->question }}</td>
+                                            <td>
+                                                <strong>A:</strong> {{ $existingQuestion->option_a }}<br>
+                                                <strong>B:</strong> {{ $existingQuestion->option_b }}<br>
+                                                <strong>C:</strong> {{ $existingQuestion->option_c }}<br>
+                                                <strong>D:</strong> {{ $existingQuestion->option_d }}
+                                            </td>
+                                            <td>{{ strtoupper($existingQuestion->correct_answer) }}</td>
+                                            <td>{{ $existingQuestion->mark }}</td>
+                                            <td>
+                                                <a href="{{ route('teacher.course.module.exam.question.edit', ['question_id' => $existingQuestion->id]) }}" 
+                                                   class="btn btn-primary btn-sm">
+                                                    <i class="bx bx-edit"></i> Edit
+                                                </a>
+                                                <form action="{{ route('teacher.course.module.exam.question.delete', ['question_id' => $existingQuestion->id]) }}" 
+                                                      method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                                            onclick="return confirm('Are you sure you want to delete this question?')">
+                                                        <i class="bx bx-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @endif
+
+                            <!-- Form to add new questions -->
                             <form method="post" action="{{ route('teacher.course.module.exam.questions.store') }}" id="questionsForm">
                                 @csrf
                                 <input type="hidden" name="exam_id" value="{{ $exam->id }}">
                                 <input type="hidden" name="module_id" value="{{ $module->id }}">
                                 <input type="hidden" id="examTotalMark" value="{{ $exam->total_mark }}">
+                                <input type="hidden" id="currentTotalMarks" value="{{ $exam->questions->sum('mark') ?? 0 }}">
                                 
                                 <div id="questions-container">
                                     <div class="row question-row mb-4">
@@ -163,7 +212,7 @@
                                         </div>
                                         <div class="col-md-3 mt-3">
                                             <label class="form-label">Mark</label>
-                                            <input type="number" name="questions[0][mark]" class="form-control" required>
+                                            <input type="number" name="questions[0][mark]" class="form-control mark-input" required>
                                         </div>
                                         <div class="col-md-1 mt-4">
                                             <button type="button" class="btn btn-danger btn-sm remove-question" style="display: none;">
@@ -180,7 +229,7 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary">Next Step</button>
+                                    <button type="submit" class="btn btn-primary">Save Questions</button>
                                 </div>
                             </form>
                         </div>
@@ -203,25 +252,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('questions-container');
     const addButton = document.getElementById('add-question');
     const remainingMarksSpan = document.getElementById('remainingMarks');
-    const examTotalMark = parseFloat(document.getElementById('examTotalMark').value || 0);
+    const examTotalMark = parseFloat(document.getElementById('examTotalMark')?.value || 0);
+    const currentTotalMarks = parseFloat(document.getElementById('currentTotalMarks')?.value || 0);
     let questionCount = 0;
 
     function updateRemainingMarks() {
-        let totalMarks = 0;
-        document.querySelectorAll('input[name$="[mark]"]').forEach(input => {
-            totalMarks += parseFloat(input.value || 0);
+        let newQuestionMarks = 0;
+        document.querySelectorAll('.mark-input').forEach(input => {
+            newQuestionMarks += parseFloat(input.value || 0);
         });
+        const totalMarks = currentTotalMarks + newQuestionMarks;
         const remaining = examTotalMark - totalMarks;
         remainingMarksSpan.textContent = `Remaining: ${remaining}`;
         remainingMarksSpan.className = `badge ${remaining < 0 ? 'bg-danger' : 'bg-info'}`;
+        return remaining;
     }
 
     // Add event listener to all mark inputs
-    container.addEventListener('input', function(e) {
-        if (e.target.name && e.target.name.endsWith('[mark]')) {
-            updateRemainingMarks();
-        }
-    });
+    if (container) {
+        container.addEventListener('input', function(e) {
+            if (e.target.classList.contains('mark-input')) {
+                updateRemainingMarks();
+            }
+        });
+    }
 
     if (addButton) {
         function updateRemoveButtons() {
@@ -238,7 +292,12 @@ document.addEventListener('DOMContentLoaded', function() {
             newRow.querySelectorAll('input, select').forEach(input => {
                 input.value = '';
                 const oldName = input.getAttribute('name');
-                input.setAttribute('name', oldName.replace('[0]', `[${questionCount}]`));
+                if (oldName) {
+                    input.setAttribute('name', oldName.replace('[0]', `[${questionCount}]`));
+                }
+                if (input.classList.contains('mark-input')) {
+                    input.addEventListener('input', updateRemainingMarks);
+                }
             });
             
             container.appendChild(newRow);
@@ -257,15 +316,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Form validation for total marks
-        document.getElementById('questionsForm').addEventListener('submit', function(e) {
-            let totalMarks = 0;
-            document.querySelectorAll('input[name$="[mark]"]').forEach(input => {
-                totalMarks += parseFloat(input.value || 0);
-            });
-            
-            if (totalMarks !== examTotalMark) {
+        document.getElementById('questionsForm')?.addEventListener('submit', function(e) {
+            const remaining = updateRemainingMarks();
+            if (remaining !== 0) {
                 e.preventDefault();
-                alert(`Total marks of all questions (${totalMarks}) must equal the exam total mark (${examTotalMark})`);
+                alert(`The total marks of all questions must equal the exam total mark (${examTotalMark}). Current remaining marks: ${remaining}`);
             }
         });
     }

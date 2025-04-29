@@ -21,6 +21,35 @@
 
     @include('layouts.Teacher.LinkHeader')
 
+    <style>
+        .dropdown-submenu {
+            position: relative;
+        }
+        
+        .dropdown-submenu .dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: -1px;
+            display: none;
+        }
+        
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+        
+        .dropdown-submenu > a::after {
+            display: block;
+            content: " ";
+            float: right;
+            border-color: transparent;
+            border-style: solid;
+            border-width: 5px 0 5px 5px;
+            border-left-color: #ccc;
+            margin-top: 5px;
+            margin-right: -10px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -73,114 +102,73 @@
                             <table class="table">
                                 <thead>
                                 <tr class="text-nowrap">
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Code</th>
-                                    <th>Course Status</th>
-                                    <th>Categories</th>
-                                    <th>Skills</th>
-                                    <th>Image</th>
-                                    <th>Duration(Week)</th>
-                                    <th>Publish Status</th>
-                                    <th>Published By</th>
-                                    <th>Reject Cause</th>
-                                    <th>Reject By</th>
-                                    <th>Change Status By</th>
-                                    <th>Action</th>
+                                    <th>Course Name</th>
+                                    <th>Course Code</th>
+                                    <th>Course Image</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($courses as $course)
+                                @foreach ($courses as $course)
                                     <tr>
-                                        <th scope="row">{{$course->id}}</th>
-                                        <td>{{$course->name}}</td>
-                                        <td>{{$course->code}}</td>
+                                        <td>{{ $course->name }}</td>
+                                        <td>{{ $course->code }}</td>
                                         <td>
-                                            @if($course->status == 0)
-                                                <div class="btn btn-danger">
-                                                    Not Active
-                                                </div>
+                                            <img src="{{ asset('Image/' . $course->image) }}" alt="Course Image" class="img-fluid" style="max-width: 100px;">
+                                        </td>
+                                        <td>
+                                            @if ($course->status_publish == 1)
+                                                <span class="badge bg-success">Published</span>
                                             @else
-                                                <div class="btn btn-success">
-                                                    Active
-                                                </div>
-                                            @endif
-
-                                        </td>
-
-                                        <td>
-                                            @forelse($course->categories as $courseCategory)
-                                             {{$courseCategory->category->name ?? '-' }} -
-                              
-                                            @empty
-        -
-                                        @endforelse
-                                        </td>
-
-                                        <td>
-                                      @forelse($course->courseSkills as $courseSkill)
-                        <div class="mb-1">
-                       <span class="badge bg-primary">{{ $courseSkill->skill->name ?? '-' }}</span>
-            <span class="badge bg-info">{{ $courseSkill->percentage ?? '0' }}%</span>
-        </div>
-    @empty
-        -
-    @endforelse
-</td>
-
-
-                                        <td>
-                                            <img src="{{ asset('image/' . $course->image) }}"
-                                                 style="width: 100px; height: 100px;">
-                                        </td>
-
-                                        <td>
-                                            {{$course->duration}}
-                                        </td>
-
-                                        <td>
-                                            @if(!empty($course->rejected_cause))
-
-                                                <div class="btn btn-primary">
-                                                    Rejected
-                                                </div>
-                                            @else
-                                            @if($course->status_publish == 0)
-                                                <div class="btn btn-danger">
-                                                    Not Published
-                                                </div>
-                                            @else
-                                                <div class="btn btn-success">
-                                                    Published
-                                                </div>
-                                                @endif
+                                                <span class="badge bg-warning">Pending</span>
                                             @endif
                                         </td>
-
-                                        <td>{{$course->pyblishedBy->name ?? '-'}}</td>
-
-                                        <td>
-                                            @if(empty($course->rejected_cause))
-                                                -
-                                            @else
-                                            {{$course->rejected_cause}}
-                                            @endif
-                                        </td>
-                                        <td>{{$course->rejectedBy->name ?? '-'}}</td>
-                                        <td>{{$course->changeStatusBy->name ?? '-'}}</td>
                                         <td>
                                             <div class="dropdown">
                                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
                                                     <i class="bx bx-dots-vertical-rounded"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <form method="post" action="{{route('teacher.course.delete' ,$course->id)}}">
-                                                        @csrf
-                                                        @method('delete')
-                                                        <button class="dropdown-item btn" type="submit">
-                                                            <i class="bx bx-trash me-1"></i> Delete
-                                                        </button>
-                                                    </form>
+                                                    @if($course->status_publish != 1)
+                                                        <a class="dropdown-item" href="{{ route('teacher.course.create.modules', ['course_id' => $course->id]) }}">
+                                                            <i class="bx bx-plus me-1"></i> Add Modules
+                                                        </a>
+                                                    @endif
+                                                    
+                                                    @if($course->modules->count() > 0)
+                                                        <div class="dropdown-divider"></div>
+                                                        <h6 class="dropdown-header">Module Management</h6>
+                                                        @foreach($course->modules as $module)
+                                                            <div class="dropdown-submenu">
+                                                                <a class="dropdown-item" href="#">
+                                                                    {{ $module->name }} <i class="bx bx-chevron-right float-end"></i>
+                                                                </a>
+                                                                <div class="dropdown-menu">
+                                                                    <a class="dropdown-item" href="{{ route('teacher.course.module.videos', ['module_id' => $module->id]) }}">
+                                                                        <i class="bx bx-video me-1"></i> Manage Videos
+                                                                    </a>
+                                                                    <a class="dropdown-item" href="{{ route('teacher.course.module.exams', ['module_id' => $module->id]) }}">
+                                                                        <i class="bx bx-test-tube me-1"></i> Manage Exams
+                                                                    </a>
+                                                                    <a class="dropdown-item" href="{{ route('teacher.course.module.homework', ['module_id' => $module->id]) }}">
+                                                                        <i class="bx bx-book me-1"></i> Manage Homework
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    @endif
+                                                    
+                                                    @if($course->status_publish != 1 && empty($course->rejected_by) && empty($course->rejected_cause))
+                                                        <div class="dropdown-divider"></div>
+                                                        <form action="{{ route('teacher.course.delete', ['id' => $course->id]) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this course?')">
+                                                                <i class="bx bx-trash me-1"></i> Delete Course
+                                                            </button>
+                                                        </form>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>

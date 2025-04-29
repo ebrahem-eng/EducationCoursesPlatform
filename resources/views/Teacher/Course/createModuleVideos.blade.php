@@ -37,6 +37,44 @@
                             <h5 class="mb-0">Add Videos to Module: {{ $module->name }}</h5>
                         </div>
                         <div class="card-body">
+                            <!-- List of existing videos -->
+                            @if($videos->count() > 0)
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Video Name</th>
+                                            <th>Description</th>
+                                            <th>Video</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($videos as $video)
+                                        <tr>
+                                            <td>{{ $video->name }}</td>
+                                            <td>{{ $video->description }}</td>
+                                            <td>
+                                                <video width="200" controls>
+                                                    <source src="{{ asset('storage/' . $video->video_url) }}" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm delete-video" 
+                                                        data-video-id="{{ $video->id }}"
+                                                        onclick="return confirm('Are you sure you want to delete this video?')">
+                                                    <i class="bx bx-trash"></i> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @endif
+
+                            <!-- Form to add new videos -->
                             <form method="post" action="{{ route('teacher.course.module.videos.store') }}" id="videosForm" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="module_id" value="{{ $module->id }}">
@@ -89,7 +127,8 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary">Next Step</button>
+                                    <button type="submit" class="btn btn-primary">Save Videos</button>
+                                    <a href="{{ route('teacher.course.index') }}" class="btn btn-secondary">Back to Courses</a>
                                 </div>
                             </form>
                         </div>
