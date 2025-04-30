@@ -38,6 +38,76 @@ class CourseController extends Controller
         return view('Teacher.Course.create' , compact('categories'));
     }
 
+    public function editDetails($course_id)
+    {
+        $categories = Category::all();
+        $course = Course::findOrFail($course_id);
+        if(!$course)
+        {
+            return redirect()->route('teacher.course.index')->with('error_message', 'Course not found');
+        }
+        return view('Teacher.Course.editDetails', compact('course' , 'categories'));
+    }
+
+    public function updateDetails(Request $request, $course_id)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:courses,name,' . $course_id,
+            'code' => 'required|string|max:255',
+            'duration' => 'required|integer',
+            'category' => 'required|exists:categories,id',
+            'subcategories' => 'required|array',
+            'subcategories.*' => 'exists:categories,id',
+            'img' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $course = Course::findOrFail($course_id);
+
+        // Handle image update if a new image is uploaded
+        if ($request->file('img') != null) {
+            $image = $request->file('img')->getClientOriginalName();
+            $path = $request->file('img')->storeAs('CourseImage', $image, 'image');
+
+            // Delete the old image if it exists
+            if ($course->image) {
+                $oldImagePath = $course->image;
+                if (\Storage::disk('image')->exists($oldImagePath)) {
+                    \Storage::disk('image')->delete($oldImagePath);
+                }
+            }
+
+            $course->image = $path;
+        }
+
+        // Update the course details
+        $course->name = $validatedData['name'];
+        $course->code = $validatedData['code'];
+        $course->duration = $validatedData['duration'];
+        $course->save();
+
+        // Update course categories (main category and subcategories)
+        // First, remove all existing course categories for this course
+        CourseCategory::where('course_id', $course->id)->delete();
+
+        // Add the main category
+        CourseCategory::create([
+            'course_id' => $course->id,
+            'category_id' => $validatedData['category'],
+        ]);
+
+        // Add subcategories (if any and not duplicate of main category)
+        foreach ($validatedData['subcategories'] as $subcategoryId) {
+            if ($subcategoryId != $validatedData['category']) {
+                CourseCategory::create([
+                    'course_id' => $course->id,
+                    'category_id' => $subcategoryId,
+                ]);
+            }
+        }
+
+        return redirect()->route('teacher.course.index')->with('success_message', 'Course updated successfully');
+    }
+
     public function getSubCategories($id)
     {
         $categoryID = $id;

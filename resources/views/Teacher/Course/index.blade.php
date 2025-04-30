@@ -162,6 +162,9 @@
                                                             <i class="bx bx-plus me-1"></i> Add Modules
                                                         </a>
                                               
+                                                        <a class="dropdown-item" href="{{ route('teacher.course.edit.details', ['course_id' => $course->id]) }}">
+                                                            <i class="bx bx-pencil me-1"></i> Edit Details
+                                                        </a>
                                                     
                                                     @if($course->modules->count() > 0)
                                                         <div class="dropdown-divider"></div>
@@ -208,6 +211,11 @@
                                                <a href="{{ route('teacher.course.students.list', ['course_id' => $course->id]) }}" class="dropdown-item">
                                                 <i class="bx bx-user-plus me-1"></i> Students List
                                                </a>
+                                               <div class="dropdown-divider"></div>
+                                               <h6 class="dropdown-header">Broadcast Live</h6>
+                                               <a href="{{ route('teacher.course.broadcast', ['course' => $course->id]) }}" class="dropdown-item">
+    <i class="bx bx-broadcast me-1"></i> Manage Live Broadcast
+</a>
                                                @endif
                                                 </div>
                                             </div>
