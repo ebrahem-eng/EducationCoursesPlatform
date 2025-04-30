@@ -65,6 +65,7 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
         Route::delete('/module/exam/question/{question_id}', 'deleteExamQuestion')->name('module.exam.question.delete');
         
         // Homework management routes
+
         Route::get('/module/{module_id}/homework', 'createModuleHomework')->name('module.homework');
 
         Route::post('/module/homework/store', 'storeModuleHomework')->name('module.homework.store');
@@ -78,5 +79,16 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
         Route::put('/module/homework/question/{question_id}', 'updateHomeworkQuestion')->name('module.homework.question.update');
 
         Route::delete('/module/homework/question/{question_id}', 'deleteHomeworkQuestion')->name('module.homework.question.delete');
+
+       // student course management routes
+        Route::get('/students/list/{course_id}', 'studentsList')->name('students.list');
+        
+        Route::get('/students/search/{course_id}', 'studentsSearch')->name('students.search');
+
+        Route::get('/student/chat/{course_id}/{student_id}', 'chat')->name('student.chat');
+        
+        Route::post('/student/chat/send', 'sendMessage')->name('student.chat.send');
+
+        Route::get('/progress/course/{course_id}', 'progressCourse')->name('student.progress');
     });
 });

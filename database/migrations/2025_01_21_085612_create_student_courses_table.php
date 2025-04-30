@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('course_id')->references('id')->on('courses')->cascadeOnDelete();
             $table->foreignId('student_id')->references('id')->on('students')->cascadeOnDelete();
-            $table->tinyInteger('status')->default(0);
+            $table->enum('status', [ 'active', 'completed', 'canceled'])->default('active');
             $table->timestamps();
         });
     }

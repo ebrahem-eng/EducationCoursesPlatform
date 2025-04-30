@@ -18,6 +18,9 @@ use App\Models\CourseModelExam;
 use App\Models\CourseModelExamQuestion;
 use App\Models\CourseModuleHomeWork;
 use App\Models\CourseModuleHomeWorkQuestion;
+use App\Models\StudentCourse;
+use App\Models\Student;
+use App\Models\CourseChatMessage;
 
 class CourseController extends Controller
 {
@@ -660,5 +663,122 @@ class CourseController extends Controller
             'status_publish' => 2,
         ]);
         return redirect()->back()->with('success_message', 'Course cancelled successfully.');
+    }
+
+    public function studentsList($course_id)
+    {
+        $course = Course::findOrFail($course_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'You are not authorized to view this course\'s students.');
+        }
+
+        $students = StudentCourse::where('course_id', $course_id)
+            ->with('student')
+            ->paginate(10);
+
+        return view('Teacher.Course.studentsList', compact('course', 'students'));
+    }
+
+    public function studentsSearch(Request $request, $course_id)
+    {
+        $course = Course::findOrFail($course_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'You are not authorized to view this course\'s students.');
+        }
+
+        $search = $request->input('search');
+
+        $students = StudentCourse::where('course_id', $course_id)
+            ->whereHas('student', function($query) use ($search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+            })
+            ->with('student')
+            ->paginate(10);
+
+        return view('Teacher.Course.studentsList', compact('course', 'students'));
+    }
+
+    public function chat($course_id, $student_id)
+    {
+        $course = Course::findOrFail($course_id);
+        $student = Student::findOrFail($student_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'You are not authorized to access this chat.');
+        }
+
+        // Verify the student is enrolled in the course
+        $enrollment = StudentCourse::where('course_id', $course_id)
+            ->where('student_id', $student_id)
+            ->first();
+
+        if (!$enrollment) {
+            return redirect()->route('teacher.course.students.list', $course_id)
+                           ->with('error_message', 'This student is not enrolled in this course.');
+        }
+
+        // Get chat messages
+        $messages = CourseChatMessage::where('course_id', $course_id)
+            ->where('student_id', $student_id)
+            ->where('teacher_id', Auth::guard('teacher')->id())
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Mark unread messages as read
+        CourseChatMessage::where('course_id', $course_id)
+            ->where('student_id', $student_id)
+            ->where('teacher_id', Auth::guard('teacher')->id())
+            ->where('sender_type', 'student')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return view('Teacher.Course.chat', compact('course', 'student', 'messages'));
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'student_id' => 'required|exists:students,id',
+            'message' => 'required|string'
+        ]);
+
+        $course = Course::findOrFail($request->course_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to send messages in this course.'
+            ], 403);
+        }
+
+        // Create the message
+        $message = CourseChatMessage::create([
+            'course_id' => $request->course_id,
+            'student_id' => $request->student_id,
+            'teacher_id' => Auth::guard('teacher')->id(),
+            'content' => $request->message,
+            'sender_type' => 'teacher',
+            'is_read' => false
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'content' => $message->content,
+                'sender_type' => 'teacher',
+                'created_at' => $message->created_at->format('M d, Y H:i')
+            ]
+        ]);
     }
 }
