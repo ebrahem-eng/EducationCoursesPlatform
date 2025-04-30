@@ -172,6 +172,55 @@ class CourseController extends Controller
         return view('Teacher.Course.createSkills', compact('skills'));
     }
 
+    public function editSkills($course_id)
+
+    {
+    // Fetch the course or fail
+     $course = Course::findOrFail($course_id);
+
+    // Fetch all available skills
+     $skills = Skill::all();
+
+    // Fetch current course skills (percentages and skill IDs)
+     $courseSkills = \App\Models\CourseSkills::where('course_id', $course_id)->get();
+
+    // Pass all data to the view
+       return view('Teacher.Course.editSkills', [
+         'course' => $course,
+         'course_id' => $course_id,
+         'skills' => $skills,
+         'courseSkills' => $courseSkills,
+        ]);
+       }
+
+
+    public function updateSkills(Request $request, $course_id)
+    {
+        $request->validate([
+            'skills' => 'required|array',
+            'skills.*' => 'exists:skills,id',
+            'percentages' => 'required|array',
+            'percentages.*' => 'numeric|min:1|max:100',
+        ]);
+    
+        $total = array_sum($request->percentages);
+        if ($total !== 100) {
+            return back()->with('error_message', 'Total percentage must be exactly 100%');
+        }
+    
+        CourseSkills::where('course_id', $course_id)->delete();
+    
+        foreach ($request->skills as $index => $skillId) {
+            CourseSkills::create([
+                'course_id' => $course_id,
+                'skill_id' => $skillId,
+                'percentage' => $request->percentages[$index],
+            ]);
+        }
+    
+        return redirect()->route('teacher.course.index')->with('success_message', 'Skills updated successfully.');
+    }    
+
     public function storeStep2(Request $request)
     {
         try {
