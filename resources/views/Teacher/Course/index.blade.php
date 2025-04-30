@@ -162,6 +162,9 @@
                                                             <i class="bx bx-plus me-1"></i> Add Modules
                                                         </a>
                                               
+                                                        <a class="dropdown-item" href="{{ route('teacher.course.edit.details', ['course_id' => $course->id]) }}">
+                                                            <i class="bx bx-pencil me-1"></i> Edit Details
+                                                        </a>
                                                     
                                                     @if($course->modules->count() > 0)
                                                         <div class="dropdown-divider"></div>

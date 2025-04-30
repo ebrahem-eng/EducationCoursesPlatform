@@ -27,6 +27,10 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::get('/create', 'create')->name('create');
 
+        Route::get('/edit-details/{course_id}', 'editDetails')->name('edit.details');
+
+        Route::post('/update-details/{course_id}', 'updateDetails')->name('update.details');
+
         Route::post('/store/step1', 'storeStep1')->name('store.step1');
 
         Route::get('/create/skills', 'createSkills')->name('create.skills');
@@ -91,11 +95,17 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::get('/progress/course/{course_id}', 'progressCourse')->name('student.progress');
 
+        // Live Broadcast Routes
         Route::get('/broadcast/{course}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'showBroadcastPage'])->name('broadcast');
+
         Route::post('/broadcast/{course}/schedule', [App\Http\Controllers\CourseLiveBroadcastController::class, 'scheduleBroadcast'])->name('broadcast.schedule');
+
         Route::post('/broadcast/{course}/start/{broadcast}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'startBroadcast'])->name('broadcast.start');
+
         Route::post('/broadcast/{course}/end/{broadcast}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'endBroadcast'])->name('broadcast.end');
+
         Route::post('/broadcast/{course}/save/{broadcast}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'saveBroadcast'])->name('broadcast.save');
+
         Route::post('/broadcast/{course}/discard/{broadcast}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'discardBroadcast'])->name('broadcast.discard');
     });
 });
