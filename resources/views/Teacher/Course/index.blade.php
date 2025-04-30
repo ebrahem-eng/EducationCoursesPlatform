@@ -105,6 +105,9 @@
                                     <th>Course Name</th>
                                     <th>Course Code</th>
                                     <th>Course Image</th>
+                                    <th>Publish Status</th>
+                                    <th>Rejected By</th>
+                                    <th>Rejected Cause</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -118,23 +121,47 @@
                                             <img src="{{ asset('Image/' . $course->image) }}" alt="Course Image" class="img-fluid" style="max-width: 100px;">
                                         </td>
                                         <td>
-                                            @if ($course->status_publish == 1)
-                                                <span class="badge bg-success">Published</span>
-                                            @else
-                                                <span class="badge bg-warning">Pending</span>
-                                            @endif
+                                            @php
+                                                $status = $course->status_publish;
+                                                $rejectedBy = $course->rejected_by ?? null;
+                                                $rejectedCause = $course->rejected_cause ?? null;
+                                            @endphp
+
+                                            @switch($status)
+                                                @case(1)
+                                                    <span class="badge bg-success">Published</span>
+                                                    @break
+                                                @case(2)
+                                                    <span class="badge bg-danger">Canceled</span>
+                                                    @break
+                                                @default
+                                                    @if(!empty($rejectedBy) || !empty($rejectedCause))
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                    @else
+                                                        <span class="badge bg-warning">Pending</span>
+                                                    @endif
+                                            @endswitch
                                         </td>
+                                        <td>{{ $course->rejectedBy->name ?? '-' }} - {{ $course->rejectedBy->email ?? '-' }}</td>
+                                        <td>{{ $course->rejected_cause ?? '-' }}</td>
                                         <td>
+                                            @if($course->status == 1)
+                                                <span class="badge bg-success">Active</span>
+                                            @else
+                                                <span class="badge bg-danger">Inactive</span>
+                                            @endif  
+                                            </td>
+                                            <td>
                                             <div class="dropdown">
                                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
                                                     <i class="bx bx-dots-vertical-rounded"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    @if($course->status_publish != 1)
+                                                @if($course->status_publish == 0 && empty($course->rejected_by) && empty($course->rejected_cause) )
                                                         <a class="dropdown-item" href="{{ route('teacher.course.create.modules', ['course_id' => $course->id]) }}">
                                                             <i class="bx bx-plus me-1"></i> Add Modules
                                                         </a>
-                                                    @endif
+                                              
                                                     
                                                     @if($course->modules->count() > 0)
                                                         <div class="dropdown-divider"></div>
@@ -159,8 +186,16 @@
                                                         @endforeach
                                                     @endif
                                                     
-                                                    @if($course->status_publish != 1 && empty($course->rejected_by) && empty($course->rejected_cause))
+                                                   
                                                         <div class="dropdown-divider"></div>
+                                                        <form action="{{ route('teacher.course.cancel', ['id' => $course->id]) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="dropdown-item text-warning" onclick="return confirm('Are you sure you want to Cancel this course?')">
+                                                                <i class="bx bx-x-circle me-1"></i> Cancel Course
+                                                            </button>
+                                                        </form>
+
                                                         <form action="{{ route('teacher.course.delete', ['id' => $course->id]) }}" method="POST" class="d-inline">
                                                             @csrf
                                                             @method('DELETE')

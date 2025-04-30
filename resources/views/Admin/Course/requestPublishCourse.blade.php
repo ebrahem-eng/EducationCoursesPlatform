@@ -122,7 +122,8 @@
                                     @else {{$course->rejected_cause}}
                                     @endif
                                     </td>
-                                    <td>{{$course->changeStatusBy->name}}</td>
+                                    <td>{{$course->changeStatusBy->name ?? '-'}}</td>
+                                    @if($course->status_publish == 0)
                                     <td>
                                         <!-- زر يفتح الـ Modal -->
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $course->id }}">
@@ -153,6 +154,8 @@
                                             </div>
                                         </div>
                                     </td>
+                                    @endif
+                                 
                                 </tr>
                                 @endforeach
                                 </tbody>

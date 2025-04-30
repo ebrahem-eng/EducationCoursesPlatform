@@ -203,6 +203,14 @@
                     </a>
                 </li>
             </ul>
+
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.course.canceledCourse')}}" class="menu-link">
+                        <div data-i18n="Basic">Canceled Course Table</div>
+                    </a>
+                </li>
+            </ul>
         </li>
 
 {{--        <li class="menu-item">--}}

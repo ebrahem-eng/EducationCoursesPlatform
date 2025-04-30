@@ -130,6 +130,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
 
         Route::put('/reject/{id}','rejectCourse')->name('rejectCourse');
 
+        Route::get('/canceledCourse', 'canceledCourse')->name('canceledCourse');
+
     });
 
      //=================================== Skills Route =============================

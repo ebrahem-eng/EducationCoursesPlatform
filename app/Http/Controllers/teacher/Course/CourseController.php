@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\CourseModuleVideo;
+use App\Models\Skill;
+use App\Models\CourseModule;
+use App\Models\CourseModelExam;
+use App\Models\CourseModelExamQuestion;
+use App\Models\CourseModuleHomeWork;
+use App\Models\CourseModuleHomeWorkQuestion;
 
 class CourseController extends Controller
 {
@@ -89,7 +95,7 @@ class CourseController extends Controller
                 ->with('error_message', 'Please complete step 1 first');
         }
 
-        $skills = \App\Models\Skill::all();
+        $skills = Skill::all();
         return view('Teacher.Course.createSkills', compact('skills'));
     }
 
@@ -218,7 +224,7 @@ class CourseController extends Controller
     // Video Management Methods
     public function createModuleVideos($module_id)
     {
-        $module = \App\Models\CourseModule::findOrFail($module_id);
+        $module = CourseModule::findOrFail($module_id);
         $videos = CourseModuleVideo::where('course_module_id', $module_id)->get();
         return view('Teacher.Course.createModuleVideos', compact('module', 'videos'));
     }
@@ -272,15 +278,15 @@ class CourseController extends Controller
     public function createModuleExams($module_id)
     {
         try {
-            $module = \App\Models\CourseModule::findOrFail($module_id);
-            $exams = \App\Models\CourseModelExam::where('course_module_id', $module_id)
+            $module = CourseModule::findOrFail($module_id);
+            $exams = CourseModelExam::where('course_module_id', $module_id)
                 ->with('questions') // Eager load questions
                 ->get();
             
             // Get the current exam if exam_id is provided
             $exam = null;
             if (request()->has('exam_id')) {
-                $exam = \App\Models\CourseModelExam::findOrFail(request()->exam_id);
+                $exam = CourseModelExam::findOrFail(request()->exam_id);
             }
             
             return view('Teacher.Course.createModuleExams', compact('module', 'exams', 'exam'));
@@ -295,7 +301,7 @@ class CourseController extends Controller
         try {
             DB::beginTransaction();
 
-            $exam = new \App\Models\CourseModelExam([
+            $exam = new CourseModelExam([
                 'course_module_id' => $request->module_id,
                 'name' => $request->name,
                 'description' => $request->description,
@@ -322,7 +328,7 @@ class CourseController extends Controller
             DB::beginTransaction();
 
             foreach ($request->questions as $questionData) {
-                $question = new \App\Models\CourseModelExamQuestion([
+                $question = new CourseModelExamQuestion([
                     'course_model_exam_id' => $request->exam_id,
                     'question' => $questionData['question'],
                     'option_a' => $questionData['option_a'],
@@ -349,7 +355,7 @@ class CourseController extends Controller
     {
         try {
             // First, verify the module exists and belongs to the current teacher
-            $module = \App\Models\CourseModule::with('course')->findOrFail($module_id);
+            $module = CourseModule::with('course')->findOrFail($module_id);
             
             // Verify the module belongs to the current teacher
             if ($module->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -359,14 +365,14 @@ class CourseController extends Controller
             }
 
             // Load homeworks with their questions
-            $homeworks = \App\Models\CourseModuleHomeWork::where('course_module_id', $module_id)
+            $homeworks = CourseModuleHomeWork::where('course_module_id', $module_id)
                 ->with('questions')
                 ->get();
             
             // Get the current homework if homework_id is provided
             $homework = null;
             if (request()->has('homework_id')) {
-                $homework = \App\Models\CourseModuleHomeWork::with('questions')->findOrFail(request()->homework_id);
+                $homework = CourseModuleHomeWork::with('questions')->findOrFail(request()->homework_id);
                 
                 // Verify the homework belongs to the correct module
                 if ($homework->course_module_id != $module_id) {
@@ -395,7 +401,7 @@ class CourseController extends Controller
     {
         try {
             // Validate the module exists and belongs to the teacher
-            $module = \App\Models\CourseModule::with('course')->findOrFail($request->module_id);
+            $module = CourseModule::with('course')->findOrFail($request->module_id);
             
             if ($module->course->teacher_id !== Auth::guard('teacher')->id()) {
                 throw new \Exception('Unauthorized access to module');
@@ -403,7 +409,7 @@ class CourseController extends Controller
 
             DB::beginTransaction();
 
-            $homework = new \App\Models\CourseModuleHomeWork([
+            $homework = new CourseModuleHomeWork([
                 'course_module_id' => $request->module_id,
                 'name' => $request->name,
                 'description' => $request->description,
@@ -431,9 +437,9 @@ class CourseController extends Controller
     public function showExamQuestions($exam_id)
     {
         try {
-            $exam = \App\Models\CourseModelExam::with(['questions', 'module'])->findOrFail($exam_id);
+            $exam =   CourseModelExam::with(['questions', 'module'])->findOrFail($exam_id);
             $module = $exam->module;
-            $exams = \App\Models\CourseModelExam::where('course_module_id', $module->id)
+            $exams =  CourseModelExam::where('course_module_id', $module->id)
                 ->with('questions')
                 ->get();
             
@@ -450,7 +456,7 @@ class CourseController extends Controller
     public function editExamQuestion($question_id)
     {
         // try {
-            $question = \App\Models\CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
+            $question = CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
             
             // Verify the question belongs to the current teacher
             if ($question->courseModelExam->module->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -469,7 +475,7 @@ class CourseController extends Controller
         try {
             DB::beginTransaction();
             
-            $question = \App\Models\CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
+            $question = CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
             
             // Verify the question belongs to the current teacher
             if ($question->courseModelExam->module->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -500,7 +506,7 @@ class CourseController extends Controller
     public function deleteExamQuestion($question_id)
     {
         try {
-            $question = \App\Models\CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
+            $question = CourseModelExamQuestion::with(['courseModelExam.module'])->findOrFail($question_id);
             
             // Verify the question belongs to the current teacher
             if ($question->courseModelExam->module->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -521,9 +527,9 @@ class CourseController extends Controller
     public function showHomeworkQuestions($homework_id)
     {
         try {
-            $homework = \App\Models\CourseModuleHomeWork::with(['questions', 'courseModule'])->findOrFail($homework_id);
+            $homework = CourseModuleHomeWork::with(['questions', 'courseModule'])->findOrFail($homework_id);
             $module = $homework->courseModule;
-            $homeworks = \App\Models\CourseModuleHomeWork::where('course_module_id', $module->id)
+            $homeworks = CourseModuleHomeWork::where('course_module_id', $module->id)
                 ->with('questions')
                 ->get();
             
@@ -543,7 +549,7 @@ class CourseController extends Controller
             DB::beginTransaction();
 
             foreach ($request->questions as $questionData) {
-                $question = new \App\Models\CourseModuleHomeWorkQuastion([
+                $question = new CourseModuleHomeWorkQuastion([
                     'course_module_home_work_id' => $request->homework_id,
                     'question' => $questionData['question'],
                     'option_a' => $questionData['option_a'],
@@ -559,7 +565,7 @@ class CourseController extends Controller
             DB::commit();
             
             // Redirect back to the homework page with the module_id
-            $homework = \App\Models\CourseModuleHomeWork::findOrFail($request->homework_id);
+            $homework = CourseModuleHomeWork::findOrFail($request->homework_id);
             return redirect()->route('teacher.course.module.homework', ['module_id' => $homework->course_module_id])
                            ->with('success_message', 'Homework questions added successfully.');
         } catch (\Exception $e) {
@@ -574,7 +580,7 @@ class CourseController extends Controller
     public function editHomeworkQuestion($question_id)
     {
         try {
-            $question = \App\Models\CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
+            $question = CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
             
             // Verify the question belongs to the current teacher
             if ($question->courseModuleHomeWork->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -593,7 +599,7 @@ class CourseController extends Controller
         try {
             DB::beginTransaction();
             
-            $question = \App\Models\CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
+            $question = CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
             
             // Verify the question belongs to the current teacher
             if ($question->courseModuleHomeWork->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -624,7 +630,7 @@ class CourseController extends Controller
     public function deleteHomeworkQuestion($question_id)
     {
         try {
-            $question = \App\Models\CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
+            $question = CourseModuleHomeWorkQuastion::with(['courseModuleHomeWork.courseModule'])->findOrFail($question_id);
             
             // Verify the question belongs to the current teacher
             if ($question->courseModuleHomeWork->courseModule->course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -640,5 +646,19 @@ class CourseController extends Controller
             \Log::error('Failed to delete homework question: ' . $e->getMessage());
             return redirect()->back()->with('error_message', 'Failed to delete question. Please try again.');
         }
+    }
+
+    public function cancelCourse($id)
+    {
+        $course = Course::findOrFail($id);
+        if ($course->status_publish == 1) {
+            return redirect()->back()->with('error_message', 'Course is already published');
+        } elseif ($course->status_publish == 2) {
+            return redirect()->back()->with('error_message', 'Course is already canceled');
+        }
+        $course->update([
+            'status_publish' => 2,
+        ]);
+        return redirect()->back()->with('success_message', 'Course cancelled successfully.');
     }
 }
