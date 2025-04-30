@@ -204,6 +204,11 @@
                                                             </button>
                                                         </form>
                                                     @endif
+                                               @if($course->status_publish == 1)
+                                               <a href="{{ route('teacher.course.students.list', ['course_id' => $course->id]) }}" class="dropdown-item">
+                                                <i class="bx bx-user-plus me-1"></i> Students List
+                                               </a>
+                                               @endif
                                                 </div>
                                             </div>
                                         </td>
