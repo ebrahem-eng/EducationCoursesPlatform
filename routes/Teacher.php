@@ -35,6 +35,8 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
 
         Route::delete('/delete/{id}', 'delete')->name('delete');
 
+        Route::put('/cancel/{id}', 'cancelCourse')->name('cancel');
+
         Route::get('/sub/category/{id}', 'getSubCategories')->name('sub.category');
 
         // Module management routes

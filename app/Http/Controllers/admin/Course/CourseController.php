@@ -11,14 +11,26 @@ class CourseController extends Controller
     //
     public function publishedCourse()
     {
-        $courses = Course :: where('status_publish' ,'=', 1)->get();
+        $courses = Course::where('status_publish' , 1)->get();
         return view('Admin.Course.publishedCourse',compact('courses'));
     }
 
     public function requestPublishCourse()
     {
-        $courses = Course :: where('status_publish' ,'=', 0)->get();
-        return view('Admin.Course.requestPublishCourse',compact('courses'));
+        $courses = Course::where('status_publish', 0)
+            ->whereNull('rejected_by')
+            ->where(function($query) {
+                $query->whereNull('rejected_cause')->orWhere('rejected_cause', '');
+            })
+            ->get();
+        return view('Admin.Course.requestPublishCourse', compact('courses'));
+    }
+
+    public function canceledCourse()
+    {
+        $courses = Course::where('status_publish', 2)
+            ->get();
+        return view('Admin.Course.canceledCourse', compact('courses'));
     }
 
     public function updateStatus(Request $request, $id)
