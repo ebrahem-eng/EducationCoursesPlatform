@@ -52,4 +52,14 @@ class CourseController extends Controller
         return view('Student.Course.MyCourses' , compact('student'));
 
     }
+
+    public function CourseVedio($id)
+    {
+        $course = Course::where('id' , $id)->first();
+        if(!$course){
+            return redirect()->back()->with('error_message' , 'course not found');
+        }
+
+        return view('Student.Course.CourseVideo' ,  compact('course'));
+    }
 }
