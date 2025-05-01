@@ -24,4 +24,9 @@ class Company extends Model
     {
         return $this->belongsTo(Admin::class, 'created_by');
     }
+
+    public function courses()
+    {
+        return $this->hasMany(CourseCompany::class , 'company_id');
+    }
 }

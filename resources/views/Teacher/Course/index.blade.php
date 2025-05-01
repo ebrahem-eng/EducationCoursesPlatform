@@ -169,6 +169,10 @@
                                                         <a class="dropdown-item" href="{{ route('teacher.course.edit.skills', ['course_id' => $course->id]) }}">
                                                             <i class="bx bx-brain me-1"></i> Edit Skills
                                                         </a>
+
+                                                        <a class="dropdown-item" href="{{ route('teacher.course.companies.list', ['course_id' => $course->id]) }}">
+                                                            <i class="bx bx-buildings me-1"></i> Manage Companies
+                                                        </a>
                                                     @if($course->modules->count() > 0)
                                                         <div class="dropdown-divider"></div>
                                                         <h6 class="dropdown-header">Module Management</h6>

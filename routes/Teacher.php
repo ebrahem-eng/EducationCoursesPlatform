@@ -111,5 +111,14 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['teacher.auth'], 'as' => '
         Route::post('/broadcast/{course}/save/{broadcast}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'saveBroadcast'])->name('broadcast.save');
 
         Route::post('/broadcast/{course}/discard/{broadcast}', [App\Http\Controllers\CourseLiveBroadcastController::class, 'discardBroadcast'])->name('broadcast.discard');
+
+        // Company Management Routes
+
+        Route::get('/companies/list/{course_id}', 'companiesList')->name('companies.list');
+
+        Route::post('/companies/store', 'storeCompany')->name('companies.store');
+        
+        Route::delete('/companies/delete/{company_id}/{course_id}', 'deleteCompany')->name('companies.delete');
+
     });
 });
