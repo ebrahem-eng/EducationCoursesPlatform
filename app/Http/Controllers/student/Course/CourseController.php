@@ -53,13 +53,39 @@ class CourseController extends Controller
 
     }
 
-    public function CourseVedio($id)
+    public function CourseModule($id)
     {
         $course = Course::where('id' , $id)->first();
         if(!$course){
             return redirect()->back()->with('error_message' , 'course not found');
         }
 
-        return view('Student.Course.CourseVideo' ,  compact('course'));
+        return view('Student.Course.CourseModule' ,  compact('course'));
     }
+
+
+public function courseContent($id)
+{
+    $student = auth('student')->user();
+
+    // التحقق مما إذا كان الطالب مسجلاً في الكورس عبر جدول StudentCourse
+    $isRegistered = StudentCourse::where('student_id', $student->id)
+                                 ->where('course_id', $id)
+                                 ->exists();
+
+    if (! $isRegistered) {
+        return redirect()->route('course.myCourses')->with('error', 'أنت غير مسجل في هذا الكورس.');
+    }
+
+    // تحميل بيانات الكورس مع علاقاته
+    $course = Course::with([
+        'courseModules.courseModuleVideos',
+        'courseModules.courseModuleHomeWorks.courseModuleHomeWorkQuastions',
+        'courseModules.courseModelExams.courseModelExamQuestions'
+    ])->findOrFail($id);
+    
+
+    return view('Student.Course.CourseContant', compact('course'));
+}
+
 }

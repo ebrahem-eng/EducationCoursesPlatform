@@ -349,12 +349,14 @@
                 @endphp
                 @if($isRegistered)
                     <br>
-                    <span class="register-btn">Registered</span>
+                    <a href="{{ route('student.course.content', $course->id) }}" class="content-btn">
+                        Start Now
+                    </a>                    
                     <br>
                 @else
                     <form action="{{ route('student.course.register', $course->id) }}" method="post">
                         @csrf
-                        <button type="submit" class="register-btn">Start Now</button>
+                        <button type="submit" class="register-btn">Register</button>
                     </form>
                 @endif
             @else

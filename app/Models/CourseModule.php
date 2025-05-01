@@ -19,4 +19,23 @@ class CourseModule extends Model
     {
         return $this->belongsTo(Course::class , 'course_id');
     }
+
+ 
+    public function videos()
+    {
+        return $this->hasMany(CourseModuleVideo::class);
+    }
+
+    public function homeWorks()
+    {
+        return $this->hasMany(CourseModuleHomeWork::class);
+    }
+
+    public function exams()
+    {
+        return $this->hasMany(CourseModelExam::class);
+    }
+
+
+
 }
