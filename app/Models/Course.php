@@ -69,4 +69,10 @@ class Course extends Model
 }
 
 
+    public function liveBroadcasts()
+    {
+        return $this->hasOne(CourseLiveBroadcast::class, 'course_id');
+    }
+
+
 }

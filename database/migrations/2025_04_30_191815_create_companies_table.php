@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code');
-            $table->tinyInteger('status');
-            $table->string('img')->nullable();
-            $table->integer('priority')->nullable();
-            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->string('name');     
+            $table->string('email')->unique();
+            $table->string('phone')->unique();
+            $table->string('address');
+            $table->string('logo');
+            $table->string('website')->nullable();
+            $table->string('description')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('admins')->nullOnDelete();
-            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('companies');
     }
 };

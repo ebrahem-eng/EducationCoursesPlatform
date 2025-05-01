@@ -18,6 +18,9 @@ use App\Models\CourseModelExam;
 use App\Models\CourseModelExamQuestion;
 use App\Models\CourseModuleHomeWork;
 use App\Models\CourseModuleHomeWorkQuestion;
+use App\Models\StudentCourse;
+use App\Models\Student;
+use App\Models\CourseChatMessage;
 
 class CourseController extends Controller
 {
@@ -33,6 +36,76 @@ class CourseController extends Controller
     {
         $categories = Category::all();
         return view('Teacher.Course.create' , compact('categories'));
+    }
+
+    public function editDetails($course_id)
+    {
+        $categories = Category::all();
+        $course = Course::findOrFail($course_id);
+        if(!$course)
+        {
+            return redirect()->route('teacher.course.index')->with('error_message', 'Course not found');
+        }
+        return view('Teacher.Course.editDetails', compact('course' , 'categories'));
+    }
+
+    public function updateDetails(Request $request, $course_id)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:courses,name,' . $course_id,
+            'code' => 'required|string|max:255',
+            'duration' => 'required|integer',
+            'category' => 'required|exists:categories,id',
+            'subcategories' => 'required|array',
+            'subcategories.*' => 'exists:categories,id',
+            'img' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $course = Course::findOrFail($course_id);
+
+        // Handle image update if a new image is uploaded
+        if ($request->file('img') != null) {
+            $image = $request->file('img')->getClientOriginalName();
+            $path = $request->file('img')->storeAs('CourseImage', $image, 'image');
+
+            // Delete the old image if it exists
+            if ($course->image) {
+                $oldImagePath = $course->image;
+                if (\Storage::disk('image')->exists($oldImagePath)) {
+                    \Storage::disk('image')->delete($oldImagePath);
+                }
+            }
+
+            $course->image = $path;
+        }
+
+        // Update the course details
+        $course->name = $validatedData['name'];
+        $course->code = $validatedData['code'];
+        $course->duration = $validatedData['duration'];
+        $course->save();
+
+        // Update course categories (main category and subcategories)
+        // First, remove all existing course categories for this course
+        CourseCategory::where('course_id', $course->id)->delete();
+
+        // Add the main category
+        CourseCategory::create([
+            'course_id' => $course->id,
+            'category_id' => $validatedData['category'],
+        ]);
+
+        // Add subcategories (if any and not duplicate of main category)
+        foreach ($validatedData['subcategories'] as $subcategoryId) {
+            if ($subcategoryId != $validatedData['category']) {
+                CourseCategory::create([
+                    'course_id' => $course->id,
+                    'category_id' => $subcategoryId,
+                ]);
+            }
+        }
+
+        return redirect()->route('teacher.course.index')->with('success_message', 'Course updated successfully');
     }
 
     public function getSubCategories($id)
@@ -98,6 +171,55 @@ class CourseController extends Controller
         $skills = Skill::all();
         return view('Teacher.Course.createSkills', compact('skills'));
     }
+
+    public function editSkills($course_id)
+
+    {
+    // Fetch the course or fail
+     $course = Course::findOrFail($course_id);
+
+    // Fetch all available skills
+     $skills = Skill::all();
+
+    // Fetch current course skills (percentages and skill IDs)
+     $courseSkills = \App\Models\CourseSkills::where('course_id', $course_id)->get();
+
+    // Pass all data to the view
+       return view('Teacher.Course.editSkills', [
+         'course' => $course,
+         'course_id' => $course_id,
+         'skills' => $skills,
+         'courseSkills' => $courseSkills,
+        ]);
+       }
+
+
+    public function updateSkills(Request $request, $course_id)
+    {
+        $request->validate([
+            'skills' => 'required|array',
+            'skills.*' => 'exists:skills,id',
+            'percentages' => 'required|array',
+            'percentages.*' => 'numeric|min:1|max:100',
+        ]);
+    
+        $total = array_sum($request->percentages);
+        if ($total !== 100) {
+            return back()->with('error_message', 'Total percentage must be exactly 100%');
+        }
+    
+        CourseSkills::where('course_id', $course_id)->delete();
+    
+        foreach ($request->skills as $index => $skillId) {
+            CourseSkills::create([
+                'course_id' => $course_id,
+                'skill_id' => $skillId,
+                'percentage' => $request->percentages[$index],
+            ]);
+        }
+    
+        return redirect()->route('teacher.course.index')->with('success_message', 'Skills updated successfully.');
+    }    
 
     public function storeStep2(Request $request)
     {
@@ -660,5 +782,122 @@ class CourseController extends Controller
             'status_publish' => 2,
         ]);
         return redirect()->back()->with('success_message', 'Course cancelled successfully.');
+    }
+
+    public function studentsList($course_id)
+    {
+        $course = Course::findOrFail($course_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'You are not authorized to view this course\'s students.');
+        }
+
+        $students = StudentCourse::where('course_id', $course_id)
+            ->with('student')
+            ->paginate(10);
+
+        return view('Teacher.Course.studentsList', compact('course', 'students'));
+    }
+
+    public function studentsSearch(Request $request, $course_id)
+    {
+        $course = Course::findOrFail($course_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'You are not authorized to view this course\'s students.');
+        }
+
+        $search = $request->input('search');
+
+        $students = StudentCourse::where('course_id', $course_id)
+            ->whereHas('student', function($query) use ($search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+            })
+            ->with('student')
+            ->paginate(10);
+
+        return view('Teacher.Course.studentsList', compact('course', 'students'));
+    }
+
+    public function chat($course_id, $student_id)
+    {
+        $course = Course::findOrFail($course_id);
+        $student = Student::findOrFail($student_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'You are not authorized to access this chat.');
+        }
+
+        // Verify the student is enrolled in the course
+        $enrollment = StudentCourse::where('course_id', $course_id)
+            ->where('student_id', $student_id)
+            ->first();
+
+        if (!$enrollment) {
+            return redirect()->route('teacher.course.students.list', $course_id)
+                           ->with('error_message', 'This student is not enrolled in this course.');
+        }
+
+        // Get chat messages
+        $messages = CourseChatMessage::where('course_id', $course_id)
+            ->where('student_id', $student_id)
+            ->where('teacher_id', Auth::guard('teacher')->id())
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Mark unread messages as read
+        CourseChatMessage::where('course_id', $course_id)
+            ->where('student_id', $student_id)
+            ->where('teacher_id', Auth::guard('teacher')->id())
+            ->where('sender_type', 'student')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return view('Teacher.Course.chat', compact('course', 'student', 'messages'));
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'student_id' => 'required|exists:students,id',
+            'message' => 'required|string'
+        ]);
+
+        $course = Course::findOrFail($request->course_id);
+        
+        // Verify the course belongs to the current teacher
+        if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to send messages in this course.'
+            ], 403);
+        }
+
+        // Create the message
+        $message = CourseChatMessage::create([
+            'course_id' => $request->course_id,
+            'student_id' => $request->student_id,
+            'teacher_id' => Auth::guard('teacher')->id(),
+            'content' => $request->message,
+            'sender_type' => 'teacher',
+            'is_read' => false
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'content' => $message->content,
+                'sender_type' => 'teacher',
+                'created_at' => $message->created_at->format('M d, Y H:i')
+            ]
+        ]);
     }
 }
