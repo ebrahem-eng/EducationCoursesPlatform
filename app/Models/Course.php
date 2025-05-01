@@ -68,4 +68,9 @@ class Course extends Model
         return $this->hasOne(CourseLiveBroadcast::class, 'course_id');
     }
 
+    public function companies()
+    {
+        return $this->hasMany(CourseCompany::class , 'course_id');
+    }
+
 }

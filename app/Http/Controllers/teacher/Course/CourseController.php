@@ -21,6 +21,8 @@ use App\Models\CourseModuleHomeWorkQuestion;
 use App\Models\StudentCourse;
 use App\Models\Student;
 use App\Models\CourseChatMessage;
+use App\Models\CourseCompany;
+use App\Models\Company;
 
 class CourseController extends Controller
 {
@@ -899,5 +901,92 @@ class CourseController extends Controller
                 'created_at' => $message->created_at->format('M d, Y H:i')
             ]
         ]);
+    }
+
+    public function companiesList($course_id)
+    {
+        try {
+            $course = Course::findOrFail($course_id);
+            
+            // Verify the course belongs to the current teacher
+            if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+                return redirect()->route('teacher.course.index')
+                               ->with('error_message', 'You are not authorized to manage companies for this course.');
+            }
+
+            // Get companies already associated with this course
+            $courseCompanies = CourseCompany::where('course_id', $course_id)->with('company')->get();
+
+            // Get companies that are not yet associated with this course
+            $associatedCompanyIds = $courseCompanies->pluck('company_id')->toArray();
+            $availableCompanies = Company::whereNotIn('id', $associatedCompanyIds)->get();
+
+            return view('Teacher.Course.companiesList', compact('course', 'courseCompanies', 'availableCompanies'));
+        } catch (\Exception $e) {
+            \Log::error('Error loading course companies: ' . $e->getMessage());
+            return redirect()->route('teacher.course.index')
+                           ->with('error_message', 'Error loading course companies. Please try again.');
+        }
+    }
+
+    public function storeCompany(Request $request)
+    {
+        try {
+            $course = Course::findOrFail($request->course_id);
+            
+            // Verify the course belongs to the current teacher
+            if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+                return redirect()->route('teacher.course.index')
+                               ->with('error_message', 'You are not authorized to manage companies for this course.');
+            }
+
+            // Check if the company is already associated with the course
+            $existingAssociation = CourseCompany::where('course_id', $request->course_id)
+                                               ->where('company_id', $request->company_id)
+                                               ->first();
+
+            if ($existingAssociation) {
+                return redirect()->back()
+                               ->with('error_message', 'This company is already associated with the course.');
+            }
+
+            // Create new association
+            CourseCompany::create([
+                'course_id' => $request->course_id,
+                'company_id' => $request->company_id
+            ]);
+
+            return redirect()->back()
+                           ->with('success_message', 'Company added to course successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Error adding company to course: ' . $e->getMessage());
+            return redirect()->back()
+                           ->with('error_message', 'Error adding company to course. Please try again.');
+        }
+    }
+
+    public function deleteCompany($company_id, $course_id)
+    {
+        try {
+            $course = Course::findOrFail($course_id);
+            
+            // Verify the course belongs to the current teacher
+            if ($course->teacher_id !== Auth::guard('teacher')->id()) {
+                return redirect()->route('teacher.course.index')
+                               ->with('error_message', 'You are not authorized to manage companies for this course.');
+            }
+
+            // Delete the association
+            CourseCompany::where('course_id', $course_id)
+                        ->where('company_id', $company_id)
+                        ->delete();
+
+            return redirect()->back()
+                           ->with('success_message', 'Company removed from course successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Error removing company from course: ' . $e->getMessage());
+            return redirect()->back()
+                           ->with('error_message', 'Error removing company from course. Please try again.');
+        }
     }
 }
