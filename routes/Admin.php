@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\Teacher\TeacherController;
 use App\Http\Controllers\admin\Skill\SkillController;
+use App\Http\Controllers\admin\Company\CompanyController;
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
@@ -150,6 +151,26 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
 
         Route::delete('/delete/{id}' , 'delete')->name('delete'); 
 
+
     });
+
+    //=================================== Company Route =============================
+
+    Route::group(['prefix' => 'company', 'as' => 'company.', 'controller' => CompanyController::class], function () {
+
+        Route::get('/index', 'index')->name('index');
+
+        Route::get('/create', 'create')->name('create');
+
+        Route::post('/store', 'store')->name('store');
+
+        Route::get('/edit/{id}', 'edit')->name('edit');
+
+        Route::put('/update/{id}', 'update')->name('update');
+
+        Route::delete('/delete/{id}' , 'delete')->name('delete'); 
+        
+    });
+        
 
 });
