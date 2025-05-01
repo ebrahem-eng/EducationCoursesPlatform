@@ -25,7 +25,10 @@ Route::group(['prefix' => 'student', 'middleware' => ['student.auth'], 'as' => '
 
         Route::get('/my-courses', [CourseController::class, 'myCourses'])->name('myCourses');
 
-        route::get('my-courses/vedio/{id}', [CourseController::class , 'CourseVedio'])->name('myCourse.vedio');
+        route::get('/module/{id}', [CourseController::class , 'CourseModule'])->name('module');
+
+        Route::get('/content/{id}', [CourseController::class, 'courseContent'])->name('content');
+
 
     });
 });

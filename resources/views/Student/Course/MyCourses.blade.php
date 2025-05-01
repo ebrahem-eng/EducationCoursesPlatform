@@ -245,6 +245,7 @@
                         <div class="progress-bar" style="width: 75%"></div>
                     </div>
                     <div class="progress-text">75% Complete</div>
+                    <a href="{{route('student.course.module',$course->course->id)}}" class="btn btn-primary">Lets Start Learn</a>
                 </div>
 
             </div>
