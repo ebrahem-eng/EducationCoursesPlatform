@@ -18,8 +18,8 @@ return new class extends Migration
             $table->tinyInteger('status');
             $table->string('img')->nullable();
             $table->integer('priority')->nullable();
-            $table->foreignId('parent_id')->nullable() ->constrained('categories')->onDelete('cascade');
-            $table->foreignId('created_by')->references('id')->on('admins');
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

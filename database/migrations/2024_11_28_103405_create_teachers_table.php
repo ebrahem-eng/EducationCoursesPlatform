@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('age');
             $table->string('phone');
             $table->string('img')->nullable();
-            $table->foreignId('created_by')->references('id')->on('admins');
+            $table->foreignId('created_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
