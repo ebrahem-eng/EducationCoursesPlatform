@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
             questionCount++;
             const newRow = document.querySelector('.question-row').cloneNode(true);
             
-            newRow.querySelectorAll('input, textarea').forEach(input => {
+            newRow.querySelectorAll('input, select, textarea').forEach(input => {
                 input.value = '';
                 const oldName = input.getAttribute('name');
                 if (oldName) {

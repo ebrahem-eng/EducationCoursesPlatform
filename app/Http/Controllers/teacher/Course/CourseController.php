@@ -23,6 +23,7 @@ use App\Models\Student;
 use App\Models\CourseChatMessage;
 use App\Models\CourseCompany;
 use App\Models\Company;
+use App\Models\CourseModuleHomeWorkQuastion;
 
 class CourseController extends Controller
 {
@@ -669,7 +670,7 @@ class CourseController extends Controller
 
     public function storeHomeworkQuestions(Request $request)
     {
-        try {
+        // try {
             DB::beginTransaction();
 
             foreach ($request->questions as $questionData) {
@@ -692,12 +693,12 @@ class CourseController extends Controller
             $homework = CourseModuleHomeWork::findOrFail($request->homework_id);
             return redirect()->route('teacher.course.module.homework', ['module_id' => $homework->course_module_id])
                            ->with('success_message', 'Homework questions added successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Failed to add homework questions: ' . $e->getMessage());
-            return redirect()->route('teacher.course.index')
-                           ->with('error_message', 'Failed to add homework questions. Please try again.');
-        }
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     \Log::error('Failed to add homework questions: ' . $e->getMessage());
+        //     return redirect()->route('teacher.course.index')
+        //                    ->with('error_message', 'Failed to add homework questions. Please try again.');
+        // }
     }
 
     // Add methods for homework question management
