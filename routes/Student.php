@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\student\StudentAuthController;
 use App\Http\Controllers\Student\Course\CourseController;
 
+
 Route::get('student/login' , action: [StudentAuthController::class , 'loginPage'])->name('student.login.page');
 
 Route::post('student/login/check' , action: [StudentAuthController::class , 'login'])->name('student.login');
@@ -30,5 +31,21 @@ Route::group(['prefix' => 'student', 'middleware' => ['student.auth'], 'as' => '
         Route::get('/content/{id}', [CourseController::class, 'courseContent'])->name('content');
 
 
+        //========================== chat with teacher ==========================
+
+
+        Route::get('/chat/{course_id}/{teacher_id}',[CourseController::class,'chat'])->name('chat');
+
+        Route::post('/chat/send', [CourseController::class,'sendMessage'])->name('chat.send');
+
+
+        //========================== show Video ===================================
+
+
+        Route::get('/{course_id}/videos/{id}', [CourseController::class, 'videoShow'])->name('video.show');
+
+        //========================= Show Exam =========================================
+
+        Route::get('/{course_id}/exam/{id}',[CourseController::class , 'ExamShow'])->name('exam.show');
     });
 });

@@ -21,17 +21,19 @@ class CourseModule extends Model
     }
 
  
-    public function videos()
-    {
-        return $this->hasMany(CourseModuleVideo::class);
-    }
+    public function courseModuleVideos()
+{
+    return $this->hasMany(CourseModuleVideo::class);
+}
 
-    public function homeWorks()
-    {
-        return $this->hasMany(CourseModuleHomeWork::class);
-    }
 
-    public function exams()
+public function courseModuleHomeWorks()
+{
+    return $this->hasMany(CourseModuleHomeWork::class);
+}
+
+
+    public function courseModelExams()
     {
         return $this->hasMany(CourseModelExam::class);
     }
