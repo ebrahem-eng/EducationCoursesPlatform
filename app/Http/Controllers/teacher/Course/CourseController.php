@@ -24,6 +24,8 @@ use App\Models\CourseChatMessage;
 use App\Models\CourseCompany;
 use App\Models\Company;
 use App\Models\CourseModuleHomeWorkQuastion;
+use App\Models\VideoProgress;
+use App\Models\StudentSubmission;
 
 class CourseController extends Controller
 {
@@ -789,7 +791,8 @@ class CourseController extends Controller
 
     public function studentsList($course_id)
     {
-        $course = Course::findOrFail($course_id);
+        $course = Course::with(['modules.courseModuleVideos', 'modules.courseModelExams', 'modules.courseModuleHomeWorks'])
+            ->findOrFail($course_id);
         
         // Verify the course belongs to the current teacher
         if ($course->teacher_id !== Auth::guard('teacher')->id()) {
@@ -798,8 +801,51 @@ class CourseController extends Controller
         }
 
         $students = StudentCourse::where('course_id', $course_id)
-            ->with('student')
+            ->with(['student', 'student.videoProgress', 'student.submissions'])
             ->paginate(10);
+
+        // Calculate progress for each student
+        foreach ($students as $enrollment) {
+            // Get video progress
+            $videoProgress = VideoProgress::where('student_id', $enrollment->student_id)
+                ->whereIn('video_id', $course->modules->pluck('courseModuleVideos')->flatten()->pluck('id'))
+                ->where('completed', true)
+                ->count();
+
+            // Get exam submissions
+            $examSubmissions = StudentSubmission::where('student_id', $enrollment->student_id)
+                ->whereIn('submittable_id', $course->modules->pluck('courseModelExams')->flatten()->pluck('id'))
+                ->where('submittable_type', CourseModelExam::class)
+                ->where('completed', true)
+                ->count();
+
+            // Get homework submissions
+            $homeworkSubmissions = StudentSubmission::where('student_id', $enrollment->student_id)
+                ->whereIn('submittable_id', $course->modules->pluck('courseModuleHomeWorks')->flatten()->pluck('id'))
+                ->where('submittable_type', CourseModuleHomeWork::class)
+                ->where('completed', true)
+                ->count();
+
+            // Calculate total items
+            $totalVideos = $course->modules->pluck('courseModuleVideos')->flatten()->count();
+            $totalExams = $course->modules->pluck('courseModelExams')->flatten()->count();
+            $totalHomework = $course->modules->pluck('courseModuleHomeWorks')->flatten()->count();
+            $totalItems = $totalVideos + $totalExams + $totalHomework;
+
+            // Calculate completed items
+            $completedItems = $videoProgress + $examSubmissions + $homeworkSubmissions;
+
+            // Calculate overall progress percentage
+            $enrollment->progress = [
+                'percentage' => $totalItems > 0 ? round(($completedItems / $totalItems) * 100, 1) : 0,
+                'completed_videos' => $videoProgress,
+                'total_videos' => $totalVideos,
+                'completed_exams' => $examSubmissions,
+                'total_exams' => $totalExams,
+                'completed_homework' => $homeworkSubmissions,
+                'total_homework' => $totalHomework
+            ];
+        }
 
         return view('Teacher.Course.studentsList', compact('course', 'students'));
     }

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $exams->name }} - Course Exam</title>
+    <title>{{ $homework->name }} - Course Homework</title>
     <link rel="stylesheet" href="{{ asset('web_assets/css/normalize.css') }}">
     <link rel="stylesheet" href="{{ asset('web_assets/css/elzero.css') }}">
     <link rel="stylesheet" href="{{ asset('web_assets/css/all.min.css') }}">
@@ -14,7 +13,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
-        .exam-container {
+        .homework-container {
             max-width: 800px;
             margin: 40px auto;
             padding: 20px;
@@ -23,20 +22,20 @@
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .exam-header {
+        .homework-header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
         }
 
-        .exam-header h1 {
+        .homework-header h1 {
             color: #2196f3;
             font-size: 24px;
             margin-bottom: 10px;
         }
 
-        .exam-info {
+        .homework-info {
             display: flex;
             justify-content: space-around;
             margin: 20px 0;
@@ -152,18 +151,6 @@
             background: #1976d2;
         }
 
-        .timer {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #2196f3;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
         .back-btn {
             display: inline-block;
             padding: 10px 20px;
@@ -223,13 +210,22 @@
             font-weight: bold;
         }
 
+        .deadline-info {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
-            .exam-container {
+            .homework-container {
                 margin: 20px;
                 padding: 15px;
             }
 
-            .exam-header h1 {
+            .homework-header h1 {
                 font-size: 20px;
             }
 
@@ -239,53 +235,54 @@
         }
     </style>
 </head>
-
 <body>
     @include('layouts.Student.header')
 
-    <div class="exam-container">
+    <div class="homework-container">
         <a href="{{ route('student.course.content', $course->id) }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Course
         </a>
 
-        <div class="exam-header">
-            <h1>{{ $exams->name }}</h1>
-            <p>{{ $exams->description }}</p>
+        <div class="homework-header">
+            <h1>{{ $homework->name }}</h1>
+            <p>{{ $homework->description }}</p>
         </div>
 
-        <div class="exam-info">
+        <div class="homework-info">
             <div class="info-item">
                 <i class="fas fa-clock"></i>
-                <span>Duration: {{ $exams->duration }} minutes</span>
+                <span>Due Date: {{ \Carbon\Carbon::parse($homework->deadline)->format('M d, Y') }}</span>
             </div>
             <div class="info-item">
                 <i class="fas fa-star"></i>
-                <span>Total Marks: {{ $exams->total_mark }}</span>
+                <span>Total Marks: {{ $homework->total_mark }}</span>
             </div>
             <div class="info-item">
                 <i class="fas fa-question-circle"></i>
-                <span>Questions: {{ $exams->questions->count() }}</span>
+                <span>Questions: {{ $homework->questions->count() }}</span>
             </div>
         </div>
 
         @php
             $submission = \App\Models\StudentSubmission::where('student_id', Auth::guard('student')->id())
-                ->where('submittable_type', \App\Models\CourseModelExam::class)
-                ->where('submittable_id', $exams->id)
+                ->where('submittable_type', \App\Models\CourseModuleHomeWork::class)
+                ->where('submittable_id', $homework->id)
                 ->first();
+            
+            $isDeadlinePassed = \Carbon\Carbon::now()->gt($homework->deadline);
         @endphp
 
         @if($submission)
             <div class="result-container">
                 <div class="result-header">
                     <h2>Your Results</h2>
-                    <div class="score">Score: {{ $submission->score }}/{{ $exams->total_mark }}</div>
+                    <div class="score">Score: {{ $submission->score }}/{{ $homework->total_mark }}</div>
                     <p>Submitted on: {{ $submission->submitted_at->format('M d, Y H:i') }}</p>
                 </div>
 
-                @foreach($exams->questions as $index => $question)
+                @foreach($homework->questions as $index => $question)
                     @php
-                        $answers = is_array($submission->answers) ? $submission->answers : json_decode($submission->answers, true);
+                        $answers = json_decode($submission->answers, true);
                         $isCorrect = $answers[$question->id] === $question->correct_answer;
                     @endphp
                     <div class="question-card">
@@ -303,11 +300,16 @@
                     </div>
                 @endforeach
             </div>
+        @elseif($isDeadlinePassed)
+            <div class="deadline-info">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>The deadline for this homework has passed.</p>
+            </div>
         @else
-            <form id="examForm" action="{{ route('student.course.exam.submit', $exams->id) }}" method="POST">
+            <form id="homeworkForm" action="{{ route('student.course.homework.submit', $homework->id) }}" method="POST">
                 @csrf
                 <div class="questions-container">
-                    @foreach($exams->questions as $index => $question)
+                    @foreach($homework->questions as $index => $question)
                     <div class="question-card">
                         <div class="question-text">
                             <span class="question-number">{{ $index + 1 }}</span>
@@ -341,39 +343,13 @@
                 </div>
 
                 <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> Submit Exam
+                    <i class="fas fa-paper-plane"></i> Submit Homework
                 </button>
             </form>
-
-            <div class="timer" id="examTimer">
-                Time remaining: {{ $exams->duration }}:00
-            </div>
         @endif
     </div>
 
     <script>
-        // Timer functionality
-        function startTimer(duration) {
-            let timer = duration * 60;
-            const timerDisplay = document.getElementById('examTimer');
-            const interval = setInterval(() => {
-                const minutes = parseInt(timer / 60, 10);
-                const seconds = parseInt(timer % 60, 10);
-
-                timerDisplay.textContent = `Time remaining: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-                if (--timer < 0) {
-                    clearInterval(interval);
-                    document.getElementById('examForm').submit();
-                }
-            }, 1000);
-        }
-
-        // Initialize timer if exam hasn't been submitted
-        @if(!$submission)
-            startTimer({{ $exams->duration }});
-        @endif
-
         // Style selected options
         document.querySelectorAll('.option-label').forEach(label => {
             label.addEventListener('click', function() {
@@ -384,7 +360,7 @@
         });
 
         // Handle form submission
-        document.getElementById('examForm')?.addEventListener('submit', function(e) {
+        document.getElementById('homeworkForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
@@ -404,10 +380,9 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while submitting the exam. Please try again.');
+                alert('An error occurred while submitting the homework. Please try again.');
             });
         });
     </script>
 </body>
-
-</html>
+</html> 
