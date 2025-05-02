@@ -19,6 +19,59 @@
     <meta name="description" content="" />
 
     @include('layouts.Teacher.LinkHeader')
+
+    <style>
+        .progress-details {
+            min-width: 300px;
+        }
+        
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+
+        .progress-stats {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .progress-stats .overall {
+            color: #333;
+        }
+
+        .progress-stats .details {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-stats .details span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .progress-stats .details i {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .progress-stats .details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+            
+            .progress-stats .details span {
+                margin: 0 !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -117,8 +170,35 @@
                                                     @endswitch
                                                 </td>
                                                 <td>
-                                                    <div class="progress">
-                                                        <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                                                    <div class="progress-details">
+                                                        <div class="progress mb-2" style="height: 10px;">
+                                                            <div class="progress-bar bg-primary" 
+                                                                 role="progressbar" 
+                                                                 style="width: {{ $student->progress['percentage'] }}%;" 
+                                                                 aria-valuenow="{{ $student->progress['percentage'] }}" 
+                                                                 aria-valuemin="0" 
+                                                                 aria-valuemax="100">
+                                                            </div>
+                                                        </div>
+                                                        <div class="progress-stats small">
+                                                            <div class="overall mb-1">
+                                                                <strong>Overall Progress:</strong> {{ $student->progress['percentage'] }}%
+                                                            </div>
+                                                            <div class="details">
+                                                                <span class="text-primary">
+                                                                    <i class="fas fa-video"></i> 
+                                                                    {{ $student->progress['completed_videos'] }}/{{ $student->progress['total_videos'] }} Videos
+                                                                </span>
+                                                                <span class="text-success mx-2">
+                                                                    <i class="fas fa-tasks"></i> 
+                                                                    {{ $student->progress['completed_homework'] }}/{{ $student->progress['total_homework'] }} Homework
+                                                                </span>
+                                                                <span class="text-info">
+                                                                    <i class="fas fa-clipboard-check"></i> 
+                                                                    {{ $student->progress['completed_exams'] }}/{{ $student->progress['total_exams'] }} Exams
+                                                                </span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td>{{ $student->created_at->format('Y-m-d') }}</td>
@@ -131,9 +211,7 @@
                                                             <a class="dropdown-item" href="{{ route('teacher.course.student.chat', ['course_id' => $course->id, 'student_id' => $student->student->id]) }}">
                                                                 <i class="bx bx-message-square-dots me-1"></i> Chat
                                                             </a>
-                                                            <a class="dropdown-item" href="{{ route('teacher.course.student.progress', ['course_id' => $course->id, 'student_id' => $student->student->id]) }}">
-                                                                <i class="bx bx-chart me-1"></i> View Progress
-                                                            </a>
+                                                         
                                                         </div>
                                                     </div>
                                                 </td>

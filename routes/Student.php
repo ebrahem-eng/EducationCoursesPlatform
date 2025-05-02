@@ -43,9 +43,17 @@ Route::group(['prefix' => 'student', 'middleware' => ['student.auth'], 'as' => '
 
 
         Route::get('/{course_id}/videos/{id}', [CourseController::class, 'videoShow'])->name('video.show');
+        Route::post('/{course_id}/videos/{id}/complete', [CourseController::class, 'markVideoComplete'])->name('video.complete');
 
         //========================= Show Exam =========================================
 
-        Route::get('/{course_id}/exam/{id}',[CourseController::class , 'ExamShow'])->name('exam.show');
+        Route::get('/{course_id}/exam/{id}',[CourseController::class , 'examShow'])->name('exam.show');
+
+        Route::post('/exam/{id}/submit', [CourseController::class, 'submitExam'])->name('exam.submit');
+
+        //========================= Show Homework =========================================
+
+        Route::get('/{course_id}/homework/{id}', [CourseController::class, 'homeworkShow'])->name('homework.show');
+        Route::post('/homework/{id}/submit', [CourseController::class, 'submitHomework'])->name('homework.submit');
     });
 });

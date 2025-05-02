@@ -31,4 +31,15 @@ class Student extends Authenticatable
     {
         return $this->hasMany(StudentCourse::class, 'student_id');
     }
+
+    public function videoProgress()
+    {
+        return $this->hasMany(VideoProgress::class, 'student_id');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(StudentSubmission::class, 'student_id');
+    }
+    
 }

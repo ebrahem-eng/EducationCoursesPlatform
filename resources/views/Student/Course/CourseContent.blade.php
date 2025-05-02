@@ -366,6 +366,244 @@ am-card, .homework-card {
     flex: 1 1 0;
     min-width: 320px;
 }
+
+.progress-overview {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.progress-bar-container {
+    height: 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, #2196f3, #1976d2);
+    border-radius: 10px;
+    position: relative;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    position: absolute;
+    right: 10px;
+    color: white;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+.progress-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat i {
+    font-size: 24px;
+    color: #2196f3;
+    margin-bottom: 5px;
+}
+
+.stat span {
+    display: block;
+    color: #666;
+    font-size: 14px;
+}
+
+.module-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.module-progress {
+    position: relative;
+}
+
+.progress-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.progress-circle::before {
+    content: '';
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: white;
+}
+
+.progress-circle::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(#2196f3 var(--progress), transparent 0);
+    --progress: calc(var(--data-progress) * 3.6deg);
+}
+
+.content-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.content-section h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.videos-grid, .exams-grid, .assignments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.video-card, .exam-card, .assignment-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.video-card:hover, .exam-card:hover, .assignment-card:hover {
+    transform: translateY(-5px);
+}
+
+.video-card.completed, .exam-card.completed, .assignment-card.completed {
+    border: 2px solid #4caf50;
+}
+
+.video-thumbnail {
+    position: relative;
+    height: 180px;
+    background: #eee;
+}
+
+.video-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.completion-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #4caf50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.video-info, .exam-info, .assignment-info {
+    padding: 15px;
+}
+
+.watch-btn, .take-exam-btn, .submit-homework-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #2196f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.watch-btn:hover, .take-exam-btn:hover, .submit-homework-btn:hover {
+    background: #1976d2;
+}
+
+.submission-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: #e3f2fd;
+    border-radius: 4px;
+}
+
+.score {
+    color: #1976d2;
+    font-weight: bold;
+}
+
+.submission-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.no-modules {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.no-modules i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.chat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #2196f3;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.chat-btn:hover {
+    background: #1976d2;
+    transform: translateY(-2px);
+}
+
+.chat-btn i {
+    font-size: 1.1em;
+}
+
+.teacher-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
     </style>
 </head>
 <body>
@@ -412,7 +650,10 @@ am-card, .homework-card {
 
         <div class="teacher-info">
             <h3>{{ $course->teacher->name }}</h3>
-{{--            <p>{{ $course->teacher->specialization }}</p> --}}
+            <a href="{{ route('student.course.chat', ['course_id' => $course->id, 'teacher_id' => $course->teacher->id]) }}" 
+               class="chat-btn">
+                <i class="fas fa-comments"></i> Chat with Teacher
+            </a>
         </div>
     </div>
 </div>
@@ -420,67 +661,159 @@ am-card, .homework-card {
 
             <div class="course-content">
                 <h3>Course Modules & Content</h3>
-                @forelse($course->modules as $module)
-                    <div class="module-section">
-                        <h3>الوحدة: {{ $module->name }}</h3>
+                <div class="module-section">
+                    <div class="progress-overview">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: {{ optional($courseProgress)->overall_progress ?? 0 }}%">
+                                <span class="progress-text">{{ number_format(optional($courseProgress)->overall_progress ?? 0, 1) }}% Complete</span>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="stat">
+                                <i class="fas fa-video"></i>
+                                <span>{{ optional($courseProgress)->completed_videos ?? 0 }} Videos</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-tasks"></i>
+                                <span>{{ optional($courseProgress)->completed_assignments ?? 0 }} Assignments</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>{{ optional($courseProgress)->completed_exams ?? 0 }} Exams</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @forelse($course->modules as $module)
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3>{{ $module->name }}</h3>
+                            <div class="module-progress">
+                                @php
+                                    $totalItems = $module->courseModuleVideos->count() + 
+                                                $module->courseModelExams->count() + 
+                                                $module->courseModuleHomeWorks->count();
+                                    
+                                    $completedItems = $module->courseModuleVideos->whereIn('id', $videoProgress->where('completed', true)->pluck('video_id'))->count() +
+                                                    $module->courseModelExams->whereIn('id', $examSubmissions->where('completed', true)->pluck('submittable_id'))->count() +
+                                                    $module->courseModuleHomeWorks->whereIn('id', $homeworkSubmissions->where('completed', true)->pluck('submittable_id'))->count();
+                                    
+                                    $moduleProgress = $totalItems > 0 ? ($completedItems / $totalItems) * 100 : 0;
+                                @endphp
+                                <div class="progress-circle" data-progress="{{ $moduleProgress }}">
+                                    <span class="progress-text">{{ number_format($moduleProgress, 0) }}%</span>
+                                </div>
+                            </div>
+                        </div>
                         <p class="module-desc">{{ $module->description }}</p>
 
-                        {{-- فيديوهات الوحدة --}}
-@if($module->courseModuleVideos->count())
-    <div class="module-block">
-        <h4>فيديوهات الوحدة</h4>
-        <div class="videos-list">
-            @foreach($module->courseModuleVideos as $video)
-                <div class="video-card">
-                    <a href="{{ route('student.course.video.show', ['course_id' => $course->id, 'id' => $video->id]) }}" style="text-decoration: none; color: inherit;">
-                        <video controls style="border-radius:8px; width: 100%;">
-                            <source src="{{ asset('storage/' . $video->video_url) }}" type="video/mp4">
-                            متصفحك لا يدعم تشغيل الفيديو.
-                        </video>
-                        <div class="video-info">
-                            <strong>{{ $video->name }}</strong>
-                            <p>{{ $video->description }}</p>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
-        </div>
-    </div>
-@endif
-                        {{-- امتحانات الوحدة --}}
-                        @if($module->courseModelExams->count())
-                            <div class="module-block">
-                                <h4>امتحانات الوحدة</h4>
-                                @foreach($module->courseModelExams as $exam)
-                                    <div class="exam-card">
-                                        <strong>{{ $exam->name }}</strong>
-                                        <span class="exam-mark">(الدرجة الكلية: {{ $exam->total_mark }})</span>
-                                        <p>{{ $exam->description }}</p>
-                                        <a href="{{ route('student.course.exam.show', ['course_id' => $course->id, 'id' => $exam->id]) }}" class="btn btn-primary" style="margin-top: 8px;">
-                                            الذهاب إلى الامتحان
+                        @if($module->courseModuleVideos->count())
+                        <div class="content-section">
+                            <h4><i class="fas fa-video"></i> Videos</h4>
+                            <div class="videos-grid">
+                                @foreach($module->courseModuleVideos as $video)
+                                <div class="video-card {{ isset($videoProgress[$video->id]) && $videoProgress[$video->id]->completed ? 'completed' : '' }}">
+                                    <div class="video-thumbnail">
+                                        <video>
+                                            <source src="{{ asset('storage/' . $video->video_url) }}" type="video/mp4">
+                                        </video>
+                                        @if(isset($videoProgress[$video->id]) && $videoProgress[$video->id]->completed)
+                                        <div class="completion-badge">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    <div class="video-info">
+                                        <h5>{{ $video->name }}</h5>
+                                        <p>{{ $video->description }}</p>
+                                        <a href="{{ route('student.course.video.show', ['course_id' => $course->id, 'id' => $video->id]) }}" 
+                                           class="watch-btn">
+                                            <i class="fas fa-play"></i> Watch Video
                                         </a>
                                     </div>
+                                </div>
                                 @endforeach
                             </div>
+                        </div>
                         @endif
 
-                        {{-- واجبات الوحدة --}}
-                        @if($module->courseModuleHomeWorks->count())
-                            <div class="module-block">
-                                <h4>واجبات الوحدة</h4>
-                                @foreach($module->courseModuleHomeWorks as $hw)
-                                    <div class="homework-card">
-                                        <strong>{{ $hw->name }}</strong>
-                                        <span class="homework-mark">(الدرجة الكلية: {{ $hw->total_mark }})</span>
-                                        <p>{{ $hw->description }}</p>
+                        @if($module->courseModelExams->count())
+                        <div class="content-section">
+                            <h4><i class="fas fa-clipboard-check"></i> Exams</h4>
+                            <div class="exams-grid">
+                                @foreach($module->courseModelExams as $exam)
+                                <div class="exam-card {{ isset($examSubmissions[$exam->id]) && $examSubmissions[$exam->id]->completed ? 'completed' : '' }}">
+                                    <div class="exam-info">
+                                        <h5>{{ $exam->name }}</h5>
+                                        <p>{{ $exam->description }}</p>
+                                        <div class="exam-meta">
+                                            <span><i class="fas fa-star"></i> {{ $exam->total_mark }} marks</span>
+                                            <span><i class="fas fa-clock"></i> {{ $exam->duration }} minutes</span>
+                                            <span><i class="fas fa-question-circle"></i> {{ $exam->questions->count() }} questions</span>
+                                        </div>
+                                        @if(isset($examSubmissions[$exam->id]))
+                                        <div class="submission-info">
+                                            <div class="score">Score: {{ $examSubmissions[$exam->id]->score }}/{{ $exam->total_mark }}</div>
+                                            <div class="submission-date">Submitted: {{ $examSubmissions[$exam->id]->submitted_at->format('M d, Y') }}</div>
+                                        </div>
+                                        @endif
+                                        <a href="{{ route('student.course.exam.show', ['course_id' => $course->id, 'id' => $exam->id]) }}" 
+                                           class="take-exam-btn">
+                                            @if(isset($examSubmissions[$exam->id]))
+                                                <i class="fas fa-eye"></i> View Results
+                                            @else
+                                                <i class="fas fa-pen"></i> Take Exam
+                                            @endif
+                                        </a>
                                     </div>
+                                </div>
                                 @endforeach
                             </div>
+                        </div>
+                        @endif
+
+                        @if($module->courseModuleHomeWorks->count())
+                        <div class="content-section">
+                            <h4><i class="fas fa-tasks"></i> Assignments</h4>
+                            <div class="assignments-grid">
+                                @foreach($module->courseModuleHomeWorks as $homework)
+                                <div class="assignment-card {{ isset($homeworkSubmissions[$homework->id]) && $homeworkSubmissions[$homework->id]->completed ? 'completed' : '' }}">
+                                    <div class="assignment-info">
+                                        <h5>{{ $homework->name }}</h5>
+                                        <p>{{ $homework->description }}</p>
+                                        <div class="assignment-meta">
+                                            <span><i class="fas fa-star"></i> {{ $homework->total_mark }} marks</span>
+                                            <span><i class="fas fa-clock"></i> {{ $homework->questions->count() }} questions</span>
+                                        </div>
+                                        @if(isset($homeworkSubmissions[$homework->id]))
+                                        <div class="submission-info">
+                                            <div class="score">Score: {{ $homeworkSubmissions[$homework->id]->score }}/{{ $homework->total_mark }}</div>
+                                            <div class="submission-date">Submitted: {{ $homeworkSubmissions[$homework->id]->submitted_at->format('M d, Y') }}</div>
+                                        </div>
+                                        @endif
+                                        <a href="{{ route('student.course.homework.show', ['course_id' => $course->id, 'id' => $homework->id]) }}" 
+                                           class="submit-homework-btn">
+                                            @if(isset($homeworkSubmissions[$homework->id]))
+                                                <i class="fas fa-eye"></i> View Submission
+                                            @else
+                                                <i class="fas fa-upload"></i> Submit Assignment
+                                            @endif
+                                        </a>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
                         @endif
                     </div>
-                @empty
-                    <p>لا توجد وحدات لهذا الكورس.</p>
-                @endforelse
+                    @empty
+                    <div class="no-modules">
+                        <i class="fas fa-book"></i>
+                        <h3>No modules available</h3>
+                        <p>The course content will be added soon.</p>
+                    </div>
+                    @endforelse
+                </div>
             </div>
 
            
@@ -563,3 +896,36 @@ am-card, .homework-card {
 
 </body>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress circles
+    document.querySelectorAll('.progress-circle').forEach(circle => {
+        circle.style.setProperty('--data-progress', circle.dataset.progress);
+    });
+
+    // Video completion tracking
+    document.querySelectorAll('video').forEach(video => {
+        video.addEventListener('ended', function() {
+            const videoCard = this.closest('.video-card');
+            const videoId = videoCard.dataset.videoId;
+            
+            fetch(`/courses/videos/${videoId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    videoCard.classList.add('completed');
+                    // Update progress indicators
+                    location.reload();
+                }
+            });
+        });
+    });
+});
+</script>

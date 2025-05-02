@@ -102,6 +102,173 @@
         .login-btn:hover {
             background: #1976d2;
         }
+
+        .search-section {
+            background: #f8f9fa;
+            padding: 40px 0;
+            margin-bottom: 40px;
+        }
+
+        .search-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px 0 0 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #2196f3;
+            outline: none;
+        }
+
+        .search-button {
+            padding: 15px 30px;
+            background: #2196f3;
+            border: none;
+            color: white;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-button:hover {
+            background: #1976d2;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-image {
+            position: relative;
+            height: 200px;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .course-duration {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .course-content {
+            padding: 20px;
+        }
+
+        .course-content h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #2196f3;
+        }
+
+        .course-code {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .course-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .teacher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teacher img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .course-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196f3;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .course-link:hover {
+            background: #1976d2;
+        }
+
+        .no-courses {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-courses i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+
+        .pagination-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -124,25 +291,86 @@
     </a>
 </div>
 <!-- End Landing -->
+<!-- Add this after the landing section -->
+<div class="search-section">
+    <div class="container">
+        <form action="{{ route('course.search') }}" method="GET" class="search-form">
+            <div class="search-box">
+                <input type="text" 
+                       name="query" 
+                       placeholder="Search for courses..." 
+                       value="{{ request('query') }}"
+                       class="search-input">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="filters">
+                <select name="category" class="filter-select">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" 
+                                {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <select name="duration" class="filter-select">
+                    <option value="">Duration</option>
+                    <option value="1-4" {{ request('duration') == '1-4' ? 'selected' : '' }}>1-4 weeks</option>
+                    <option value="5-8" {{ request('duration') == '5-8' ? 'selected' : '' }}>5-8 weeks</option>
+                    <option value="9-12" {{ request('duration') == '9-12' ? 'selected' : '' }}>9-12 weeks</option>
+                    <option value="12+" {{ request('duration') == '12+' ? 'selected' : '' }}>12+ weeks</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
 <!-- Start Articles -->
 <div class="articles" id="articles">
-    <h2 class="main-title">Courses</h2>
+    <h2 class="main-title">Featured Courses</h2>
     <div class="container">
-
-        @foreach($courses as $course)
-        <div class="box">
-            <img src="{{'Image/'.$course->image}}" alt="" />
-            <div class="content">
-                <h3>{{$course->name}}</h3>
-                <p>{{$course->code}}</p>
+        @forelse($courses as $course)
+        <div class="course-card">
+            <div class="course-image">
+                <img src="{{ asset('Image/'.$course->image) }}" alt="{{ $course->name }}">
+                <div class="course-duration">
+                    <i class="far fa-clock"></i>
+                    {{ $course->duration }} weeks
+                </div>
             </div>
-            <div class="info">
-                <a href="{{route('student.course.details' , $course->id)}}">Details</a>
-                <i class="fas fa-long-arrow-alt-right"></i>
+            <div class="course-content">
+                <h3>{{ $course->name }}</h3>
+                <div class="course-code">{{ $course->code }}</div>
+                <div class="course-info">
+                    <div class="teacher">
+                        <img src="{{ asset('Image/'.$course->teacher->img) }}" alt="{{ $course->teacher->name }}">
+                        <span>{{ $course->teacher->name }}</span>
+                    </div>
+                    <div class="stats">
+                        <span><i class="fas fa-users"></i> {{ $course->students->count() }} students</span>
+                        <span><i class="fas fa-book"></i> {{ $course->modules->count() }} modules</span>
+                    </div>
+                </div>
+                <a href="{{ route('student.course.details', $course->id) }}" class="course-link">
+                    View Details <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
-        @endforeach
+        @empty
+        <div class="no-courses">
+            <i class="fas fa-search"></i>
+            <h3>No courses found</h3>
+            <p>Try adjusting your search criteria</p>
+        </div>
+        @endforelse
     </div>
+    
+    @if($courses->hasPages())
+    <div class="pagination-container">
+        {{ $courses->links() }}
+    </div>
+    @endif
 </div>
 <div class="spikes"></div>
 <!-- End Articles -->
