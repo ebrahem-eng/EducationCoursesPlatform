@@ -668,6 +668,58 @@ am-card, .homework-card {
                                 <span class="progress-text">{{ number_format(optional($courseProgress)->overall_progress ?? 0, 1) }}% Complete</span>
                             </div>
                         </div>
+                        
+                        @if(optional($courseProgress)->overall_progress == 100)
+                            <div class="certificate-section">
+                                <h3><i class="fas fa-certificate"></i> Course Certificate</h3>
+                                @php
+                                    $certificate = \App\Models\Certificate::where('student_id', Auth::guard('student')->id())
+                                        ->where('course_id', $course->id)
+                                        ->first();
+                                @endphp
+
+                                @if(!$certificate)
+                                    <div class="alert alert-info">
+                                        <p>Congratulations! You've completed the course. Your certificate request has been submitted for review.</p>
+                                        @php
+                                            // Create certificate request
+                                            \App\Models\Certificate::create([
+                                                'student_id' => Auth::guard('student')->id(),
+                                                'course_id' => $course->id,
+                                                'certificate_number' => 'CERT-' . strtoupper(uniqid()),
+                                                'status' => 'pending'
+                                            ]);
+                                        @endphp
+                                    </div>
+                                @else
+                                    <div class="certificate-status">
+                                        @switch($certificate->status)
+                                            @case('pending')
+                                                <div class="alert alert-warning">
+                                                    <p>Your certificate is pending approval.</p>
+                                                </div>
+                                                @break
+                                            @case('approved')
+                                                <div class="alert alert-success">
+                                                    <p>Your certificate has been approved!</p>
+                                                    <a href="{{ route('admin.certificate.generate', $certificate->id) }}" 
+                                                       class="btn btn-primary">
+                                                        <i class="fas fa-download"></i> Download Certificate
+                                                    </a>
+                                                </div>
+                                                @break
+                                            @case('rejected')
+                                                <div class="alert alert-danger">
+                                                    <p>Your certificate was rejected.</p>
+                                                    <p>Reason: {{ $certificate->rejection_reason }}</p>
+                                                </div>
+                                                @break
+                                        @endswitch
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
                         <div class="progress-stats">
                             <div class="stat">
                                 <i class="fas fa-video"></i>

@@ -171,6 +171,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin.auth'], 'as' => 'admi
         Route::delete('/delete/{id}' , 'delete')->name('delete'); 
         
     });
+
+    //=================================== Certificate Route =============================
+
+    Route::group(['prefix' => 'certificate', 'as' => 'certificate.', 'controller' => \App\Http\Controllers\admin\Certificate\CertificateController::class], function () {
         
+        Route::get('/pending', 'pendingCertificates')->name('pending');
+
+        Route::get('/approved', 'approvedCertificates')->name('approved');
+
+        Route::get('/rejected', 'rejectedCertificates')->name('rejected');
+
+        Route::post('/approve/{id}', 'approve')->name('approve');
+
+        Route::post('/reject/{id}', 'reject')->name('reject');
+
+        Route::get('/generate/{id}', 'generateCertificate')->name('generate');
+    });
 
 });

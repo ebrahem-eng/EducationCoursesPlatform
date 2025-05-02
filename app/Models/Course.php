@@ -79,4 +79,21 @@ class Course extends Model
         return $this->hasMany(CourseCompany::class , 'course_id');
     }
 
+    public function company()
+    {
+        return $this->hasOneThrough(
+            Company::class,
+            CourseCompany::class,
+            'course_id',
+            'id',
+            'id',
+            'company_id'
+        );
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class, 'course_id');
+    }
+
 }

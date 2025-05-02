@@ -231,5 +231,29 @@
                 </li>
             </ul>
         </li>
+
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-certification"></i>
+                <div data-i18n="Authentications">Certificate Management</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{ route('admin.certificate.pending') }}" class="menu-link">
+                        <div data-i18n="Basic">Pending Certificates</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('admin.certificate.approved') }}" class="menu-link">
+                        <div data-i18n="Basic">Approved Certificates</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('admin.certificate.rejected') }}" class="menu-link">
+                        <div data-i18n="Basic">Rejected Certificates</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
 </aside>
