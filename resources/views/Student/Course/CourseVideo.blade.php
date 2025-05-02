@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
-        .course-details {
+
+.course-details {
             padding: 100px 0;
             position: relative;
         }
@@ -290,160 +292,218 @@
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
-    </style>
+     .course-details {
+        padding: 40px 0;
+    }
+    
+    .videos-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .video-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .video-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .video-card video {
+        width: 100%;
+        height: auto;
+        min-height: 250px;
+        border-radius: 8px;
+        background: #000;
+    }
+    
+    .video-info {
+        padding: 15px 5px 5px;
+        text-align: right;
+    }
+    
+    .video-info strong {
+        display: block;
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .video-info p {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    .module-section h3 {
+        color: #2196f3;
+        font-size: 24px;
+        margin-bottom: 15px; 
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .module-section h4 {
+        color: #444;
+        font-size: 20px;
+        margin: 25px 0 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .videos-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .video-card video {
+            min-height: 200px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .videos-list {
+            gap: 15px;
+        }
+        
+        .video-card {
+            padding: 10px;
+        }
+        
+        .module-section h3 {
+            font-size: 20px;
+        }
+        
+        .module-section h4 {
+            font-size: 18px;
+        }
+    }
+</style>
 </head>
+
 <body>
 
-@include('layouts.Student.header')
+    @include('layouts.Student.header')
 
-<!-- Course Details Section -->
-<div class="course-details">
-    {{-- message Section --}}
-    @if (session('success_message'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> {{ session('success_message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
-        </div>
-    @endif
-
-    @if (session('error_message'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error!</strong> {{ session('error_message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
-        </div>
-    @endif
-
-    {{-- end message Section --}}
-
-    <div class="container py-4">
-        <h2 class="mb-4">{{ $course->title }}</h2>
-        <p><strong>المدرّس:</strong> {{ $course->teacher->name }}</p>
-    
-        <hr>
-    
-        @foreach ($course->courseModules as $module)
-            <div class="mb-5">
-                <h4 class="text-primary">{{ $module->title }}</h4>
-                <p>{{ $module->description }}</p>
-    
-                {{-- فيديوهات --}}
-                @if($module->courseModuleVideos->count())
-                    <h5 class="mt-3">الفيديوهات:</h5>
-                    <ul>
-                        @foreach($module->courseModuleVideos as $video)
-                            <li>
-                                <a href="{{ $video->video_url }}" target="_blank">{{ $video->title }}</a>
-                            </li>
+    <!-- Course Details Section -->
+    <div class="course-content">
+    @forelse($course->modules as $module)
+        <div class="module-section">
+            <h3>الوحدة: {{ $module->name }}</h3>
+            
+            {{-- فيديوهات الوحدة --}}
+            @if ($module->courseModuleVideos->count())
+                <div class="module-block">
+                    <h4>فيديوهات الوحدة</h4>
+                    <div class="videos-list">
+                        @foreach ($module->courseModuleVideos as $video)
+                            <div class="video-card">
+                                <video controls poster="{{ $video->thumbnail_url ? asset('storage/'.$video->thumbnail_url) : '' }}">
+                                    <source src="{{ asset('storage/public/course_videos' . $video->video_url) }}" type="video/mp4">
+                                    متصفحك لا يدعم تشغيل الفيديو.
+                                </video>
+                                <div class="video-info">
+                                    <strong>{{ $video->name }}</strong>
+                                    @if($video->description)
+                                        <p>{{ $video->description }}</p>
+                                    @endif
+                                    @if($video->duration)
+                                        <small class="text-muted">المدة: {{ $video->duration }}</small>
+                                    @endif
+                                </div>
+                            </div>
                         @endforeach
-                    </ul>
-                @endif
-    
-                {{-- الوظائف --}}
-                @if($module->courseModuleHomeWorks->count())
-                    <h5 class="mt-3">الوظائف:</h5>
-                    @foreach($module->courseModuleHomeWorks as $homework)
-                        <div class="mb-2">
-                            <strong>{{ $homework->title }}</strong>
-                            <ul>
-                                @foreach($homework->courseModuleHomeWorkQuastions as $question)
-                                    <li>{{ $question->question }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endforeach
-                @endif
-    
-                {{-- النماذج الامتحانية --}}
-                @if($module->courseModelExams->count())
-                    <h5 class="mt-3">نماذج امتحانية:</h5>
-                    @foreach($module->courseModelExams as $exam)
-                        <div class="mb-2">
-                            <strong>{{ $exam->title }}</strong>
-                            <ul>
-                                @foreach($exam->courseModelExamQuestions as $question)
-                                    <li>{{ $question->question }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endforeach
-                @endif
-            </div>
-            <hr>
-        @endforeach
-    </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    @empty
+        <div class="alert alert-info">لا توجد وحدات لهذا الكورس.</div>
+    @endforelse
+    <a href="{{ route('student.course.content',$course->id) }}" class="btn btn-primary">
+    Back <i class="bx bx-left-arrow-alt"></i>
+</a>
 </div>
 
-<!-- Footer from your original page -->
-<div class="footer">
-    <div class="container">
-        <!-- Footer content -->
+    <!-- Footer from your original page -->
+    <div class="footer">
+        <div class="container">
+            <!-- Footer content -->
+        </div>
     </div>
-</div>
 
-<script src="{{ asset('web_assets/js/main.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<div class="footer">
-    <div class="container">
-        <div class="box">
-            <h3>Elzero</h3>
-            <ul class="social">
-                <li>
-                    <a href="#" class="facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="youtube">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                </li>
-            </ul>
-            <p class="text">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Temporibus nulla rem, dignissimos iste aspernatur
-            </p>
-        </div>
-        <div class="box">
-            <ul class="links">
-                <li><a href="#">Important Link 1</a></li>
-                <li><a href="#">Important Link 2</a></li>
-                <li><a href="#">Important Link 3</a></li>
-                <li><a href="#">Important Link 4</a></li>
-                <li><a href="#">Important Link 5</a></li>
-            </ul>
-        </div>
-        <div class="box">
-            <div class="line">
-                <i class="fas fa-map-marker-alt fa-fw"></i>
-                <div class="info">Egypt, Giza, Inside The Sphinx, Room Number 220</div>
+    <script src="{{ asset('web_assets/js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="footer">
+        <div class="container">
+            <div class="box">
+                <h3>Elzero</h3>
+                <ul class="social">
+                    <li>
+                        <a href="#" class="facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="youtube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </li>
+                </ul>
+                <p class="text">
+                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Temporibus nulla rem, dignissimos iste
+                    aspernatur
+                </p>
             </div>
-            <div class="line">
-                <i class="far fa-clock fa-fw"></i>
-                <div class="info">Business Hours: From 10:00 To 18:00</div>
+            <div class="box">
+                <ul class="links">
+                    <li><a href="#">Important Link 1</a></li>
+                    <li><a href="#">Important Link 2</a></li>
+                    <li><a href="#">Important Link 3</a></li>
+                    <li><a href="#">Important Link 4</a></li>
+                    <li><a href="#">Important Link 5</a></li>
+                </ul>
             </div>
-            <div class="line">
-                <i class="fas fa-phone-volume fa-fw"></i>
-                <div class="info">
-                    <span>+20123456789</span>
-                    <span>+20198765432</span>
+            <div class="box">
+                <div class="line">
+                    <i class="fas fa-map-marker-alt fa-fw"></i>
+                    <div class="info">Egypt, Giza, Inside The Sphinx, Room Number 220</div>
+                </div>
+                <div class="line">
+                    <i class="far fa-clock fa-fw"></i>
+                    <div class="info">Business Hours: From 10:00 To 18:00</div>
+                </div>
+                <div class="line">
+                    <i class="fas fa-phone-volume fa-fw"></i>
+                    <div class="info">
+                        <span>+20123456789</span>
+                        <span>+20198765432</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="box footer-gallery">
-            <img src="{{ asset('web_assets/imgs/gallery-01.png') }}" alt="" />
-            <img src="{{ asset('web_assets/imgs/gallery-02.png') }}" alt="" />
-            <img src="{{ asset('web_assets/imgs/gallery-03.jpg') }}" alt="" />
-            <img src="{{ asset('web_assets/imgs/gallery-04.png') }}" alt="" />
-            <img src="{{ asset('web_assets/imgs/gallery-05.jpg') }}" alt="" />
-            <img src="{{ asset('web_assets/imgs/gallery-06.png') }}" alt="" />
-        </div>
-        <p class="copyright">Made With &lt;3 By Elzero</p>
-        <!-- End Footer -->
-        <script src="{{ asset('web_assets/js/main.js') }}"></script>
+            <div class="box footer-gallery">
+                <img src="{{ asset('web_assets/imgs/gallery-01.png') }}" alt="" />
+                <img src="{{ asset('web_assets/imgs/gallery-02.png') }}" alt="" />
+                <img src="{{ asset('web_assets/imgs/gallery-03.jpg') }}" alt="" />
+                <img src="{{ asset('web_assets/imgs/gallery-04.png') }}" alt="" />
+                <img src="{{ asset('web_assets/imgs/gallery-05.jpg') }}" alt="" />
+                <img src="{{ asset('web_assets/imgs/gallery-06.png') }}" alt="" />
+            </div>
+            <p class="copyright">Made With &lt;3 By Elzero</p>
+            <!-- End Footer -->
+            <script src="{{ asset('web_assets/js/main.js') }}"></script>
 
 </body>
+
 </html>
