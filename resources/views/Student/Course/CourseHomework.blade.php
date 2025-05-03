@@ -282,8 +282,8 @@
 
                 @foreach($homework->questions as $index => $question)
                     @php
-                        $answers = json_decode($submission->answers, true);
-                        $isCorrect = $answers[$question->id] === $question->correct_answer;
+                        $answers = is_array($submission->answers) ? $submission->answers : json_decode($submission->answers, true);
+                        $isCorrect = isset($answers[$question->id]) && $answers[$question->id] === $question->correct_answer;
                     @endphp
                     <div class="question-card">
                         <div class="question-text">
@@ -292,7 +292,7 @@
                             <span class="mark-label">({{ $question->mark }} marks)</span>
                         </div>
                         <div class="question-result {{ $isCorrect ? 'correct' : 'incorrect' }}">
-                            <p>Your answer: <span class="{{ $isCorrect ? 'correct-answer' : 'incorrect-answer' }}">{{ $answers[$question->id] }}</span></p>
+                            <p>Your answer: <span class="{{ $isCorrect ? 'correct-answer' : 'incorrect-answer' }}">{{ $answers[$question->id] ?? 'Not answered' }}</span></p>
                             @if(!$isCorrect)
                                 <p>Correct answer: <span class="correct-answer">{{ $question->correct_answer }}</span></p>
                             @endif

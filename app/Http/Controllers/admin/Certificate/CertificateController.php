@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\StudentSubmission;
 use App\Models\CourseModelExam;
 use App\Models\CourseModuleHomeWork;
+use App\Models\StudentSkill;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -81,11 +82,27 @@ class CertificateController extends Controller
 
     public function approve($id)
     {
-        $certificate = Certificate::findOrFail($id);
+        $certificate = Certificate::with(['course.courseSkills.skill'])->findOrFail($id);
+        
+        // Update certificate status
         $certificate->update([
             'status' => 'approved',
             'issue_date' => now()
         ]);
+
+        // Add course skills to student skills
+        foreach ($certificate->course->courseSkills as $courseSkill) {
+            StudentSkill::updateOrCreate(
+                [
+                    'student_id' => $certificate->student_id,
+                    'skill_id' => $courseSkill->skill_id,
+                    'course_id' => $certificate->course_id,
+                ],
+                [
+                    'percentage' => $courseSkill->percentage
+                ]
+            );
+        }
 
         return redirect()->back()->with('success_message', 'Certificate has been approved successfully.');
     }

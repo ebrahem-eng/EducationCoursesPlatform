@@ -21,8 +21,7 @@ class Course extends Model
         'publish_by',
         'teacher_id',
         'image',
-        'duration',
-        'description'
+        'duration'
      ];
 
     public function pyblishedBy()

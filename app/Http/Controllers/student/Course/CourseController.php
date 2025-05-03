@@ -269,6 +269,20 @@ class CourseController extends Controller
     {
         $student = Auth::guard('student')->user();
         $exam = CourseModelExam::with(['questions', 'module'])->findOrFail($id);
+        
+        // Check if student has already submitted this exam
+        $existingSubmission = StudentSubmission::where([
+            'student_id' => $student->id,
+            'submittable_type' => CourseModelExam::class,
+            'submittable_id' => $id
+        ])->first();
+        
+        if ($existingSubmission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already submitted this exam.'
+            ], 400);
+        }
 
         $validatedData = $request->validate([
             'answers' => 'required|array',
@@ -439,6 +453,20 @@ class CourseController extends Controller
     {
         $student = Auth::guard('student')->user();
         $homework = CourseModuleHomeWork::with(['questions', 'courseModule'])->findOrFail($id);
+
+        // Check if student has already submitted this homework
+        $existingSubmission = StudentSubmission::where([
+            'student_id' => $student->id,
+            'submittable_type' => CourseModuleHomeWork::class,
+            'submittable_id' => $id
+        ])->first();
+        
+        if ($existingSubmission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already submitted this homework.'
+            ], 400);
+        }
 
         if (Carbon::now()->gt($homework->deadline)) {
             return response()->json([

@@ -339,16 +339,7 @@
             <div class="course-content">
                 <h3>Course Content</h3>
                 <ul>
-                    @forelse($course->modules as $module)
-                        <li>
-                            {{ $module->name }}
-                            @if($module->description)
-                                - {{ $module->description }}
-                            @endif
-                        </li>
-                    @empty
-                        <li>No modules available for this course yet.</li>
-                    @endforelse
+                        <li>{{ $course->name }}</li>
                 </ul>
             </div>
 
@@ -358,7 +349,7 @@
                     $isRegistered = false;
                     if ($student) {
                         // Use relationship to check registration efficiently
-                        $isRegistered = $student->courses()->where('course_id', $course->id)->exists();
+                        $isRegistered = $student->courses()->where('courses.id', $course->id)->exists();
                     }
                 @endphp
                 @if($isRegistered)
