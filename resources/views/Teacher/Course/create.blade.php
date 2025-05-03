@@ -66,7 +66,7 @@
 
                     <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Create Teacher</h5>
+                            <h5 class="mb-0">Create Course</h5>
                         </div>
                         <div class="card-body">
                             <form method="post" action="{{route('teacher.course.store.step1')}}" enctype="multipart/form-data">
