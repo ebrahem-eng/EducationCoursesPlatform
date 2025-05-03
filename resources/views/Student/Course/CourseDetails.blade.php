@@ -324,7 +324,7 @@
         <div class="info">
             <h2>{{ $course->name }}</h2>
             <div class="code">Course Code: {{ $course->code }}</div>
-            <p>{{ $course->code }}</p>
+            <p>{{ $course->description ?? 'No description available' }}</p>
 
             <div class="code">Course Duration: {{ $course->duration }} (Week)</div>
 
@@ -339,13 +339,27 @@
             <div class="course-content">
                 <h3>Course Content</h3>
                 <ul>
-                        <li>{{ $course->name }}</li>
+                    @forelse($course->modules as $module)
+                        <li>
+                            {{ $module->name }}
+                            @if($module->description)
+                                - {{ $module->description }}
+                            @endif
+                        </li>
+                    @empty
+                        <li>No modules available for this course yet.</li>
+                    @endforelse
                 </ul>
             </div>
 
             @if(Auth::guard('student')->check())
                 @php
-                    $isRegistered = \Illuminate\Support\Facades\Auth::guard('student')->user()->courses->contains('id', $course->id);
+                    $student = Auth::guard('student')->user();
+                    $isRegistered = false;
+                    if ($student) {
+                        // Use relationship to check registration efficiently
+                        $isRegistered = $student->courses()->where('course_id', $course->id)->exists();
+                    }
                 @endphp
                 @if($isRegistered)
                     <br>
