@@ -234,7 +234,7 @@
             <i class="fas fa-graduation-cap"></i>
             <h3>No courses yet</h3>
             <p>Start learning by enrolling in a course!</p>
-            <a href="{{ route('welcome') }}" class="browse-courses-btn">
+            <a href="{{ route('home') }}" class="browse-courses-btn">
                 <i class="fas fa-search"></i> Browse Courses
             </a>
         </div>

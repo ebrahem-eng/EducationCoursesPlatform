@@ -30,10 +30,11 @@ Route::group(['prefix' => 'student', 'middleware' => ['student.auth'], 'as' => '
 
         Route::get('/content/{id}', [CourseController::class, 'courseContent'])->name('content');
 
+        //========================== Live Broadcast ==========================
+        Route::get('/{course_id}/broadcast/{broadcast}', [CourseController::class, 'watchBroadcast'])->name('broadcast.watch');
+        Route::get('/{course_id}/broadcast/{broadcast}/status', [CourseController::class, 'getBroadcastStatus'])->name('broadcast.status');
 
         //========================== chat with teacher ==========================
-
-
         Route::get('/chat/{course_id}/{teacher_id}',[CourseController::class,'chat'])->name('chat');
 
         Route::post('/chat/send', [CourseController::class,'sendMessage'])->name('chat.send');

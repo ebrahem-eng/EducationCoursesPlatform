@@ -347,14 +347,16 @@
                 @php
                     $student = Auth::guard('student')->user();
                     $isRegistered = false;
-                    if ($student) {
-                        // Use relationship to check registration efficiently
-                        $isRegistered = $student->courses()->where('courses.id', $course->id)->exists();
+                    if ($student && isset($course->id)) {
+                        // Use pivot table StudentCourse to check registration
+                        $isRegistered = \App\Models\StudentCourse::where('student_id', $student->id)
+                            ->where('course_id', $course->id)
+                            ->exists();
                     }
                 @endphp
                 @if($isRegistered)
                     <br>
-                    <span class="register-btn">Registered</span>
+                    <span class="register-btn" style="background: #28a745; color: #fff; cursor: default;">Registered</span>
                     <br>
                 @else
                     <form action="{{ route('student.course.register', $course->id) }}" method="post">
