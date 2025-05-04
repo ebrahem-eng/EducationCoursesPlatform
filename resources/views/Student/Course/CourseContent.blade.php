@@ -662,6 +662,51 @@ am-card, .homework-card {
             <div class="course-content">
                 <h3>Course Modules & Content</h3>
                 <div class="module-section">
+                    <!-- Live Broadcast Section -->
+                    @if($liveBroadcast)
+                    <div class="broadcast-section" style="margin-bottom: 30px;">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title">
+                                        <i class="fas fa-broadcast-tower text-danger"></i> 
+                                        Live Broadcast
+                                    </h4>
+                                    <span class="badge {{ $liveBroadcast->status === 'live' ? 'bg-danger' : 'bg-warning' }}">
+                                        {{ $liveBroadcast->status === 'live' ? 'LIVE NOW' : 'Scheduled' }}
+                                    </span>
+                                </div>
+                                
+                                <h5 class="mt-3">{{ $liveBroadcast->title }}</h5>
+                                @if($liveBroadcast->description)
+                                    <p class="text-muted">{{ $liveBroadcast->description }}</p>
+                                @endif
+                                
+                                @if($liveBroadcast->status === 'scheduled')
+                                    <p class="text-info">
+                                        <i class="fas fa-clock"></i> 
+                                        Starts at: {{ $liveBroadcast->scheduled_start->format('M d, Y H:i') }}
+                                    </p>
+                                @endif
+
+                                <div class="mt-3">
+                                    @if($liveBroadcast->status === 'live')
+                                        <a href="{{ route('student.course.broadcast.watch', ['course_id' => $course->id, 'broadcast' => $liveBroadcast->id]) }}" 
+                                           class="btn btn-danger">
+                                            <i class="fas fa-play-circle"></i> Join Live Stream
+                                        </a>
+                                    @else
+                                        <button class="btn btn-secondary" disabled>
+                                            <i class="fas fa-clock"></i> Waiting for broadcast
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    <!-- End Live Broadcast Section -->
+
                     <div class="progress-overview">
                         <div class="progress-bar-container">
                             <div class="progress-bar" style="width: {{ optional($courseProgress)->overall_progress ?? 0 }}%">

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CourseModelHomework;
 use Carbon\Carbon;
 use App\Models\CourseModuleHomeWork;
+use App\Models\CourseLiveBroadcast;
 
 class CourseController extends Controller
 {
@@ -26,7 +27,7 @@ class CourseController extends Controller
 
         // Search by name or code
         if ($request->filled('query')) {
-            $searchTerm = $request->query;
+            $searchTerm = $request->input('query');
             $query->where(function($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
                   ->orWhere('code', 'like', "%{$searchTerm}%");
@@ -139,6 +140,12 @@ class CourseController extends Controller
             'teacher'
         ])->findOrFail($id);
 
+        // Get active live broadcast if exists
+        $liveBroadcast = CourseLiveBroadcast::where('course_id', $id)
+            ->whereIn('status', ['scheduled', 'live'])
+            ->latest()
+            ->first();
+
         // Get progress for all content
         $videoProgress = VideoProgress::where('student_id', $student->id)
             ->whereIn('video_id', $course->modules->pluck('courseModuleVideos')->flatten()->pluck('id'))
@@ -188,7 +195,8 @@ class CourseController extends Controller
             'videoProgress',
             'examSubmissions',
             'homeworkSubmissions',
-            'courseProgress'
+            'courseProgress',
+            'liveBroadcast'
         ));
     }
 
@@ -335,7 +343,7 @@ class CourseController extends Controller
                 ->where('submittable_type', CourseModelExam::class)
                 ->where('completed', true)
                 ->count();
-            $courseProgress->updateOverallProgress();
+            $courseProgress->calculateProgress();
             $courseProgress->save();
         }
 
@@ -526,7 +534,7 @@ class CourseController extends Controller
                 ->where('submittable_type', CourseModuleHomeWork::class)
                 ->where('completed', true)
                 ->count();
-            $courseProgress->updateOverallProgress();
+            $courseProgress->calculateProgress();
             $courseProgress->save();
         }
 
@@ -535,6 +543,29 @@ class CourseController extends Controller
             'score' => $score,
             'total_marks' => $totalMarks,
             'feedback' => $feedback
+        ]);
+    }
+
+    public function watchBroadcast($course_id, $broadcast_id)
+    {
+        $course = Course::findOrFail($course_id);
+        $broadcast = CourseLiveBroadcast::where('course_id', $course_id)
+            ->where('id', $broadcast_id)
+            ->whereIn('status', ['scheduled', 'live'])
+            ->firstOrFail();
+
+        return view('Student.Course.watch-broadcast', compact('course', 'broadcast'));
+    }
+
+    public function getBroadcastStatus($course_id, $broadcast_id)
+    {
+        $broadcast = CourseLiveBroadcast::where('course_id', $course_id)
+            ->where('id', $broadcast_id)
+            ->firstOrFail();
+
+        return response()->json([
+            'status' => $broadcast->status,
+            'started_at' => $broadcast->started_at ? $broadcast->started_at->format('Y-m-d H:i:s') : null,
         ]);
     }
 }

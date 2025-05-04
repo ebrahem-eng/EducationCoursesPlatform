@@ -1,6 +1,6 @@
 <div class="header" id="header">
     <div class="container">
-        <a href="#" class="logo">Elzero</a>
+        <a href="{{route('home')}}" class="logo">Elzero</a>
         <ul class="main-nav">
             <li><a href="#articles">Articles</a></li>
             <li><a href="#gallery">Gallery</a></li>

@@ -1,159 +1,145 @@
 <!DOCTYPE html>
-<html
-    lang="en"
-    class="light-style layout-menu-fixed"
-    dir="ltr"
-    data-theme="theme-default"
-    data-assets-path="../assets/"
-    data-template="vertical-menu-template-free"
->
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
-
-    <title>Watch Live Broadcast</title>
-
-    <meta name="description" content="" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $broadcast->title }} - Live Broadcast</title>
+    <link rel="stylesheet" href="{{ asset('web_assets/css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ asset('web_assets/css/elzero.css') }}">
+    <link rel="stylesheet" href="{{ asset('web_assets/css/all.min.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    @include('layouts.Student.LinkHeader')
 
     <style>
         .broadcast-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .video-container {
             position: relative;
             width: 100%;
             background: #000;
             aspect-ratio: 16/9;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
         }
-        .broadcast-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+
+        .broadcast-info {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .broadcast-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status-live {
+            background: #dc3545;
             color: white;
         }
-        .broadcast-info {
-            background: rgba(0,0,0,0.1);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+
+        .status-scheduled {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .waiting-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+        .waiting-message i {
+            font-size: 48px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
-
 <body>
-<!-- Layout wrapper -->
-<div class="layout-wrapper layout-content-navbar">
-    <div class="layout-container">
-        <!-- Menu -->
-        @include('layouts.Student.Sidebar')
-        <!-- / Menu -->
+    @include('layouts.Student.header')
 
-        <!-- Layout container -->
-        <div class="layout-page">
-            <!-- Navbar -->
-            @include('layouts.Student.NavBar')
-            <!-- / Navbar -->
+    <div class="broadcast-container">
+        <a href="{{ route('student.course.content', $course->id) }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Course
+        </a>
 
-            <!-- Content wrapper -->
-            <div class="content-wrapper">
-                <!-- Content -->
-                <div class="container-xxl flex-grow-1 container-p-y">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">{{ $broadcast->title }}</h5>
-                                    <p class="text-muted mb-0">{{ $course->name }}</p>
-                                </div>
-
-                                <div class="card-body">
-                                    <div class="broadcast-info">
-                                        <p><strong>Status:</strong> {!! $broadcast->status_badge !!}</p>
-                                        <p><strong>Teacher:</strong> {{ $broadcast->teacher->name }}</p>
-                                        @if($broadcast->description)
-                                            <p><strong>Description:</strong> {{ $broadcast->description }}</p>
-                                        @endif
-                                    </div>
-
-                                    <div class="broadcast-container">
-                                        @if($broadcast->status === 'scheduled')
-                                            <div class="broadcast-overlay">
-                                                <i class="bx bx-time" style="font-size: 4rem;"></i>
-                                                <h4 class="mt-2">Broadcast Not Started</h4>
-                                                <p>Scheduled for {{ $broadcast->scheduled_start->format('M d, Y H:i') }}</p>
-                                            </div>
-                                        @elseif($broadcast->status === 'live')
-                                            <div id="broadcastPlayer"></div>
-                                        @else
-                                            <div class="broadcast-overlay">
-                                                <i class="bx bx-video-off" style="font-size: 4rem;"></i>
-                                                <h4 class="mt-2">Broadcast Ended</h4>
-                                                @if($broadcast->recorded_url)
-                                                    <a href="{{ $broadcast->recorded_url }}" class="btn btn-primary mt-3">
-                                                        <i class="bx bx-play me-1"></i> Watch Recording
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- / Content -->
-
-                <!-- Footer -->
-                @include('layouts.Student.Footer')
-                <!-- / Footer -->
-
-                <div class="content-backdrop fade"></div>
+        <div class="broadcast-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>{{ $broadcast->title }}</h1>
+                <span class="broadcast-status {{ $broadcast->status === 'live' ? 'status-live' : 'status-scheduled' }}">
+                    {{ $broadcast->status === 'live' ? 'LIVE' : 'Scheduled' }}
+                </span>
             </div>
-            <!-- Content wrapper -->
+            <p>{{ $broadcast->description }}</p>
+            @if($broadcast->status === 'scheduled')
+                <p>
+                    <i class="fas fa-clock"></i>
+                    Starts at: {{ $broadcast->scheduled_start->format('M d, Y H:i') }}
+                </p>
+            @endif
         </div>
-        <!-- / Layout page -->
+
+        <div class="video-container">
+            @if($broadcast->status === 'live')
+                <video id="broadcastPlayer" autoplay playsinline controls style="width: 100%; height: 100%;">
+                    <source src="{{ $broadcast->stream_url }}" type="application/x-mpegURL">
+                    Your browser does not support the video tag.
+                </video>
+            @else
+                <div class="waiting-message">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <h2>Broadcast Not Started</h2>
+                    <p>Please wait for the teacher to start the broadcast.</p>
+                </div>
+            @endif
+        </div>
     </div>
 
-    <!-- Overlay -->
-    <div class="layout-overlay layout-menu-toggle"></div>
-</div>
+    <script>
+        // Poll for broadcast status if not live
+        @if($broadcast->status !== 'live')
+            function checkBroadcastStatus() {
+                fetch('{{ route("student.course.broadcast.status", ["course" => $course->id, "broadcast" => $broadcast->id]) }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'live') {
+                            window.location.reload();
+                        }
+                    });
+            }
 
-@include('layouts.Student.LinkJS')
-
-<script>
-    // Initialize broadcast player if broadcast is live
-    @if($broadcast->status === 'live')
-        // Add your video player initialization code here
-        // Example using Video.js:
-        // const player = videojs('broadcastPlayer', {
-        //     sources: [{ src: '{{ $broadcast->stream_url }}' }]
-        // });
-    @endif
-
-    // Polling for broadcast status updates
-    @if($broadcast->status === 'scheduled' || $broadcast->status === 'live')
-        setInterval(() => {
-            fetch('{{ route("student.course.broadcast.status", ["course_id" => $course->id, "broadcast_id" => $broadcast->id]) }}')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status !== '{{ $broadcast->status }}') {
-                        window.location.reload();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }, 10000); // Check every 10 seconds
-    @endif
-</script>
-
+            setInterval(checkBroadcastStatus, 10000); // Check every 10 seconds
+        @endif
+    </script>
 </body>
 </html> 
