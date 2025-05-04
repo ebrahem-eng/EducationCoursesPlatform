@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin\Course;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
@@ -37,8 +38,10 @@ class CourseController extends Controller
     {
         $course = Course::findOrFail($id);
     
-        $course->status = $request->has('status') ? 1 : 0;
-        $course->save();
+        $course->update([
+            'status' => $request->has('status') ? 1 : 0,
+            'change_status_by' => Auth::guard('admin')->user()->id,
+        ]);
     
         return redirect()->back()->with('success_message', 'Course status updated successfully!');
     }
@@ -49,8 +52,10 @@ class CourseController extends Controller
 {
     $course = Course::findOrFail($id);
 
-    $course->status_publish = $request->has('status_publish') ? 1 : 0;
-    $course->save();
+    $course->update([
+        'status_publish' => $request->has('status_publish') ? 1 : 0,
+        'publish_by' => Auth::guard('admin')->user()->id,
+    ]);
 
     if ($course->status_publish == 1) {
         return redirect()->route('admin.course.publishedCourse')->with('success', 'Course has been published successfully!');
@@ -72,14 +77,6 @@ public function rejectCourse(Request $request, $id)
 
     return redirect()->back()->with('success_message', 'Course has been rejected successfully with a reason!');
 }
-
-
-
-
-
-
-
-
 
 
 }

@@ -159,6 +159,89 @@
                 font-size: 20px;
             }
         }
+
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .profile-trigger:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-name {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .dropdown-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .dropdown-menu li a:hover {
+            background: #f5f5f5;
+        }
+
+        .login-btn {
+            padding: 8px 20px;
+            background: #2196f3;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #1976d2;
+        }
+
     </style>
 </head>
 
